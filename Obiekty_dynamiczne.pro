@@ -1,7 +1,7 @@
 TEMPLATE = app
 CONFIG += console
 
-#QT += widgets
+##QT += widgets
 
 SOURCES += main.cpp \
     dynamicalsystem.cpp \
