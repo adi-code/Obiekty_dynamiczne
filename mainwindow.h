@@ -28,7 +28,7 @@ private:
     QSpinBox* m_spin_box_max_ti;
     QSpinBox* m_spin_box_max_td;
     QSpinBox* m_spin_box_max_kd;
-    QSpinBox* m_spin_box_max_response_time;
+    QSpinBox* m_spin_box_response_time;
     QSpinBox* m_spin_box_controlled_process_dimension;
     QDoubleSpinBox** m_spin_box_numerator_parameter;
     QDoubleSpinBox** m_spin_box_denominator_parameter;
@@ -41,7 +41,7 @@ private:
     QLabel* m_label_max_ti;
     QLabel* m_label_max_td;
     QLabel* m_label_max_kd;
-    QLabel* m_label_max_resposne_time;
+    QLabel* m_label_response_time;
     QLabel* m_label_controlled_process_dimension;
     QLabel* m_label_result;
     QLabel** m_label_parameter_index;

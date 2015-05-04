@@ -22,7 +22,7 @@ DynamicalSystem::DynamicalSystem(unsigned int p_system_dimension,
         throw inproper_system_data;
     }
 
-    CalculateMatrices();
+    //CalculateMatrices();
 }
 
 DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
@@ -245,13 +245,7 @@ DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
 
 }
 
-DynamicalSystem::DynamicalSystem(unsigned int p_system_dimension) :
-    m_a_matrix(p_system_dimension, p_system_dimension),
-    m_b_matrix(p_system_dimension, 1),
-    m_c_matrix(1, p_system_dimension),
-    m_d_matrix(1, 1),
-    m_system_dimension(p_system_dimension)
-
+DynamicalSystem::DynamicalSystem()
 {
 
 }
