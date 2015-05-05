@@ -57,11 +57,11 @@ MainWindow::MainWindow(QWidget *parent) :
     m_spin_box_max_kd->setValue(1000);
     m_spin_box_max_kd->setMinimumWidth(50);
 
-    m_spin_box_max_response_time = new QSpinBox;
-    m_spin_box_max_response_time->setMinimum(0);
-    m_spin_box_max_response_time->setMaximum(10*1000);
-    m_spin_box_max_response_time->setValue(100);
-    m_spin_box_max_response_time->setMinimumWidth(50);
+    m_spin_box_response_time = new QSpinBox;
+    m_spin_box_response_time->setMinimum(0);
+    m_spin_box_response_time->setMaximum(10*1000);
+    m_spin_box_response_time->setValue(100);
+    m_spin_box_response_time->setMinimumWidth(50);
 
     m_spin_box_controlled_process_dimension = new QSpinBox;
     m_spin_box_controlled_process_dimension->setMinimum(1);
@@ -105,9 +105,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_label_max_kd->setFont(common_font);
     m_label_max_kd->setAlignment(Qt::AlignCenter);
 
-    m_label_max_resposne_time = new QLabel(tr("Maksymalny czas odpowiedzi sk."));
-    m_label_max_resposne_time->setFont(common_font);
-    m_label_max_resposne_time->setAlignment(Qt::AlignCenter);
+    m_label_response_time = new QLabel(tr("Czas analizy odpowiedzi sk."));
+    m_label_response_time->setFont(common_font);
+    m_label_response_time->setAlignment(Qt::AlignCenter);
 
     m_label_controlled_process_dimension = new QLabel(tr("Rząd obiektu"));
     m_label_controlled_process_dimension->setFont(common_font);
@@ -173,8 +173,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_layout->addWidget(m_spin_box_max_ti, 3, 9, Qt::AlignCenter);
     m_layout->addWidget(m_label_max_kd, 4, 4, Qt::AlignCenter);
     m_layout->addWidget(m_spin_box_max_kd, 4, 5, Qt::AlignCenter);
-    m_layout->addWidget(m_label_max_resposne_time, 4, 6, Qt::AlignCenter);
-    m_layout->addWidget(m_spin_box_max_response_time, 4, 7, Qt::AlignCenter);
+    m_layout->addWidget(m_label_response_time, 4, 6, Qt::AlignCenter);
+    m_layout->addWidget(m_spin_box_response_time, 4, 7, Qt::AlignCenter);
     m_layout->addWidget(m_label_controlled_process_dimension, 4, 8, Qt::AlignCenter);
     m_layout->addWidget(m_spin_box_controlled_process_dimension, 4, 9, Qt::AlignCenter);
     m_layout->addWidget(m_push_button_run_algorithm, 15, 0, 1, 2, Qt::AlignCenter);
@@ -225,7 +225,7 @@ MainWindow::~MainWindow()
     delete m_spin_box_max_ti;
     delete m_spin_box_max_td;
     delete m_spin_box_max_kd;
-    delete m_spin_box_max_response_time;
+    delete m_spin_box_response_time;
     delete m_spin_box_controlled_process_dimension;
     delete m_label_algorithm_parameters;
     delete m_label_optimalization_problem_parameters;
@@ -235,7 +235,7 @@ MainWindow::~MainWindow()
     delete m_label_max_ti;
     delete m_label_max_td;
     delete m_label_max_kd;
-    delete m_label_max_resposne_time;
+    delete m_label_response_time;
     delete m_label_controlled_process_dimension;
     delete m_label_result;
     for(int i=0; i<10; i++)
@@ -267,7 +267,7 @@ void MainWindow::PrepareOptimizationAlgorithm()
     }
     m_spin_box_max_kd->setDisabled(true);
     m_spin_box_max_kr->setDisabled(true);
-    m_spin_box_max_response_time->setDisabled(true);
+    m_spin_box_response_time->setDisabled(true);
     m_spin_box_max_td->setDisabled(true);
     m_spin_box_max_ti->setDisabled(true);
     m_spin_box_number_of_iterations->setDisabled(true);
@@ -289,7 +289,7 @@ void MainWindow::PrepareOptimizationAlgorithm()
     m_algorithms_handler->SetNumeratorParameters(numerator_parameters);
     m_algorithms_handler->SetDenominatorParameters(denominator_parameters);
     m_algorithms_handler->SetMaxResponseTime(
-                m_spin_box_max_response_time->value());
+                m_spin_box_response_time->value());
 
     m_label_result->setText("Obliczenia w toku...");
 
@@ -308,7 +308,7 @@ void MainWindow::HandleEndOfAlgorithm()
     }
     m_spin_box_max_kd->setDisabled(false);
     m_spin_box_max_kr->setDisabled(false);
-    m_spin_box_max_response_time->setDisabled(false);
+    m_spin_box_response_time->setDisabled(false);
     m_spin_box_max_td->setDisabled(false);
     m_spin_box_max_ti->setDisabled(false);
     m_spin_box_number_of_iterations->setDisabled(false);

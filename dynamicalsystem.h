@@ -26,7 +26,7 @@ public:
                     std::vector<double> p_denominator_parameters);
     DynamicalSystem(DynamicalSystem *p_controlled_process,
                     DynamicalSystem *p_regulator);
-    DynamicalSystem(unsigned int p_system_dimension);
+    DynamicalSystem();
 
     unsigned int GetSystemDimension();
     DSMatrix GetAMatrix();
