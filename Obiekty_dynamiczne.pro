@@ -1,6 +1,9 @@
 TEMPLATE = app
 CONFIG += console
 
+# enable C++11
+CONFIG += c++11
+
 QT += widgets
 
 SOURCES += main.cpp \
@@ -16,7 +19,12 @@ SOURCES += main.cpp \
     algorithmselector.cpp \
     amga2/amga2algorithmrunner.cpp \
     amga2/amga2algorithmsettings.cpp \
-    function.cpp
+    function.cpp \
+    controltimefunction.cpp \
+    functionevaluator.cpp \
+    dynamicsystemfunctionevaluator.cpp \
+    overshootfunction.cpp \
+    squareerrorintegralfunction.cpp
 
 HEADERS += \
     dynamicalsystem.h \
@@ -32,7 +40,12 @@ HEADERS += \
     algorithmselector.h \
     amga2/amga2algorithmrunner.h \
     amga2/amga2algorithmsettings.h \
-    function.h
+    function.h \
+    controltimefunction.h \
+    functionevaluator.h \
+    dynamicsystemfunctionevaluator.h \
+    overshootfunction.h \
+    squareerrorintegralfunction.h
 
 # libEvolOptimizer
 

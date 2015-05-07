@@ -2,12 +2,9 @@
 #define DYNAMICALSYSTEM_H
 
 #include "dsidentitymatrix.h"
-#include "boost/numeric/odeint.hpp"
 #include "boost/numeric/ublas/vector.hpp"
 #include <vector>
 #include <iostream>
-
-using namespace boost::numeric::ublas;
 
 class DynamicalSystem
 {
