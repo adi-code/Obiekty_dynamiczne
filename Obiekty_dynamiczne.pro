@@ -10,7 +10,13 @@ SOURCES += main.cpp \
     regulator.cpp \
     mainwindow.cpp \
     algorithmshandler.cpp \
-    algorithmrunner.cpp
+    algorithmrunner.cpp \
+    algorithmsettings.cpp \
+    algorithmlistener.cpp \
+    algorithmselector.cpp \
+    amga2/amga2algorithmrunner.cpp \
+    amga2/amga2algorithmsettings.cpp \
+    function.cpp
 
 HEADERS += \
     dynamicalsystem.h \
@@ -20,7 +26,13 @@ HEADERS += \
     regulator.h \
     mainwindow.h \
     algorithmshandler.h \
-    algorithmrunner.h
+    algorithmrunner.h \
+    algorithmsettings.h \
+    algorithmlistener.h \
+    algorithmselector.h \
+    amga2/amga2algorithmrunner.h \
+    amga2/amga2algorithmsettings.h \
+    function.h
 
 # libEvolOptimizer
 
