@@ -7,7 +7,7 @@
 
 struct AlgorithmSetting {
     std::string m_label;
-    unsigned int m_type;
+    unsigned int m_type; // 0 - double, 1 - integer
     double m_min;
     double m_max;
     double m_default;
