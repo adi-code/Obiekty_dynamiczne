@@ -1,6 +1,7 @@
 #ifndef OVERSHOOTFUNCTION_H
 #define OVERSHOOTFUNCTION_H
 
+#include "function.h"
 
 class OvershootFunction : public Function
 {

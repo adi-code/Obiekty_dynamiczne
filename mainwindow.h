@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "algorithmshandler.h"
+#include <QList>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QRadioButton>
@@ -49,6 +50,8 @@ private:
     QLabel** m_label_denominator_parameter;
     QWidget* m_main_widget;
 
+    QList<QWidget*> m_custom_widgets;
+
     unsigned int m_controlled_process_dimension;
 
     AlgorithmsHandler* m_algorithms_handler;
@@ -58,10 +61,20 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow(); 
     
+private:
+    void ClearCustomWidgets();
+    std::vector<double> getParameters();
+
+public slots:
+    void AddWidget(const QString& p_label, unsigned int p_type = 0,
+                   double p_low_limit = 0, double p_high_limit = 1,
+                   double p_value = 0);
+
 private slots:
     void PrepareOptimizationAlgorithm();
     void HandleEndOfAlgorithm();
     void ChangeEnabledParameters(int p_controlled_process_dimension);
+    void SelectAlgorithm(int p_i);
 
 signals:
     void RunAlgorithm();

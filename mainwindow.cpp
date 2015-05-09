@@ -13,9 +13,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_second_algorithm_button = new QRadioButton(tr("Algorytm nr 2"));
     m_third_algorithm_button = new QRadioButton(tr("Algorytm nr 3"));
     m_algorithm_buttons_group = new QButtonGroup;
-    m_algorithm_buttons_group->addButton(m_first_algorithm_button);
-    m_algorithm_buttons_group->addButton(m_second_algorithm_button);
-    m_algorithm_buttons_group->addButton(m_third_algorithm_button);
+    m_algorithm_buttons_group->addButton(m_first_algorithm_button, 0);
+    m_algorithm_buttons_group->addButton(m_second_algorithm_button, 1);
+    m_algorithm_buttons_group->addButton(m_third_algorithm_button, 2);
     m_push_button_run_algorithm->setFont(small_bold_font);
     m_first_algorithm_button->setFont(big_bold_font);
     m_second_algorithm_button->setFont(big_bold_font);
@@ -188,6 +188,22 @@ MainWindow::MainWindow(QWidget *parent) :
         m_layout->addWidget(m_spin_box_denominator_parameter[i], 5+i, 7, Qt::AlignCenter);
     }
 
+    // test
+//    QLabel* testLabel = new QLabel(tr("Prawdopodobieństwo krzyżowania"));
+//    testLabel->setFont(common_font);
+//    testLabel->setAlignment(Qt::AlignCenter);
+
+//    QDoubleSpinBox* spin_box_p_crossover = new QDoubleSpinBox;
+//    spin_box_p_crossover->setMinimum(0.0);
+//    spin_box_p_crossover->setMaximum(1.0);
+//    spin_box_p_crossover->setValue(0.5);
+//    spin_box_p_crossover->setSingleStep(0.01);
+//    spin_box_p_crossover->setMinimumWidth(50);
+
+//    m_layout->addWidget(testLabel, 5, 0, Qt::AlignCenter);
+//    m_layout->addWidget(spin_box_p_crossover, 5, 1, Qt::AlignCenter);
+    // end test
+
     m_main_widget = new QWidget();
     m_main_widget->setLayout(m_layout);
     setCentralWidget(m_main_widget);
@@ -208,6 +224,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(PrepareOptimizationAlgorithm()));
     connect(m_spin_box_controlled_process_dimension, SIGNAL(valueChanged(int)),
             this, SLOT(ChangeEnabledParameters(int)));
+    connect(m_algorithms_handler, SIGNAL(ShowWidget(QString,uint,double,double,double)),
+            this, SLOT(AddWidget(QString,uint,double,double,double)));
+    connect(m_algorithm_buttons_group, SIGNAL(buttonClicked(int)),
+            this, SLOT(SelectAlgorithm(int)));
 }
 
 MainWindow::~MainWindow()
@@ -252,6 +272,8 @@ MainWindow::~MainWindow()
     delete m_spin_box_numerator_parameter;
     delete m_spin_box_denominator_parameter;
 
+    ClearCustomWidgets();
+
     delete m_layout;
     delete m_main_widget;
 }
@@ -290,6 +312,7 @@ void MainWindow::PrepareOptimizationAlgorithm()
     m_algorithms_handler->SetDenominatorParameters(denominator_parameters);
     m_algorithms_handler->SetMaxResponseTime(
                 m_spin_box_response_time->value());
+    m_algorithms_handler->SetAlgorithmParameters(getParameters());
 
     m_label_result->setText("Obliczenia w toku...");
 
@@ -344,4 +367,71 @@ void MainWindow::ChangeEnabledParameters(int p_controlled_process_dimension)
         }
     }
     m_controlled_process_dimension = p_controlled_process_dimension;
+}
+
+void MainWindow::AddWidget(const QString &p_label, unsigned int p_type,
+                           double p_low_limit, double p_high_limit, double p_value) {
+    QFont common_font("Verdana", 10);
+
+    QLabel* label_widget = new QLabel(p_label);
+    label_widget->setFont(common_font);
+    label_widget->setAlignment(Qt::AlignCenter);
+
+    int index = m_custom_widgets.size() / 2;
+
+    QWidget* widget;
+
+    if(p_type == 0) { // double
+        QDoubleSpinBox* double_spin_box = new QDoubleSpinBox();
+        double_spin_box->setMinimum(p_low_limit);
+        double_spin_box->setMaximum(p_high_limit);
+        double_spin_box->setSingleStep(0.01);
+        double_spin_box->setValue(p_value);
+        widget = double_spin_box;
+    } else { // p_type == 1 // int
+        QSpinBox* spin_box = new QSpinBox();
+        spin_box->setMinimum(p_low_limit);
+        spin_box->setMaximum(p_high_limit);
+        spin_box->setValue(p_value);
+        widget = spin_box;
+    }
+
+    m_layout->addWidget(label_widget, 5 + index, 0, Qt::AlignCenter);
+    m_layout->addWidget(widget, 5 + index, 1, Qt::AlignCenter);
+
+    m_custom_widgets.append(label_widget);
+    m_custom_widgets.append(widget);
+}
+
+void MainWindow::ClearCustomWidgets() {
+    for(int i=0;i<m_custom_widgets.size();++i) {
+        delete m_custom_widgets[i];
+    }
+
+    m_custom_widgets.clear();
+}
+
+std::vector<double> MainWindow::getParameters() {
+    std::vector<double> params;
+
+    for(int i=1;i<m_custom_widgets.size();i+=2) {
+        QWidget* spin_box_widget = m_custom_widgets[i];
+        // bad idea, avoid dynamic_cast
+        QDoubleSpinBox* double_spin_box = dynamic_cast<QDoubleSpinBox*>(spin_box_widget);
+        QSpinBox* spin_box = dynamic_cast<QSpinBox*>(spin_box_widget);
+        double value = 0.0;
+        if(NULL != double_spin_box) {
+            value = double_spin_box->value();
+        } else if(NULL != spin_box) {
+            value = static_cast<double>(spin_box->value());
+        }
+        params.emplace_back(value);
+    }
+
+    return params;
+}
+
+void MainWindow::SelectAlgorithm(int p_i) {
+    ClearCustomWidgets();
+    m_algorithms_handler->SelectAlgorithm(p_i);
 }

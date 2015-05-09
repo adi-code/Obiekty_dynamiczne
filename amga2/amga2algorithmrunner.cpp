@@ -39,6 +39,26 @@ private:
     AlgorithmListener* m_listener;
 };
 
+class Amga2ICQualityFunction : public ICQualityFunction {
+public:
+    Amga2ICQualityFunction() : ICQualityFunction(), m_func(NULL) {}
+
+    void setFunction(Function* func) {
+        m_func = func;
+    }
+
+    double calculate(double* p_pf, unsigned int p_nf) {
+        if(NULL != m_func) {
+            return m_func->calculate(p_pf, p_nf);
+        }
+
+        return 0.0;
+    }
+
+private:
+    Function* m_func;
+};
+
 //Amga2AlgorithmRunner::Amga2AlgorithmRunner(QObject *parent) : QObject(parent), m_algorithm(new Amga2()),
 //    m_listener(NULL), m_settings(NULL)
 Amga2AlgorithmRunner::Amga2AlgorithmRunner() : m_algorithm(new Amga2()),
@@ -50,18 +70,63 @@ Amga2AlgorithmRunner::Amga2AlgorithmRunner() : m_algorithm(new Amga2()),
 Amga2AlgorithmRunner::~Amga2AlgorithmRunner()
 {
     if(m_algorithm != NULL) {
-        delete m_algorithm;
+        delete static_cast<Amga2*>(m_algorithm);
     }
 }
 
 void Amga2AlgorithmRunner::configure(AlgorithmSettings *p_settings) {
     m_settings = p_settings;
     Amga2* algorithm = static_cast<Amga2*>(m_algorithm);
-    algorithm->setGenerations(300);
-    algorithm->setFloatSize(1);
-    algorithm->setBinarySize(0);
-    algorithm->setPopSize(200);
+
+    std::vector<Function*> obj_funcs = p_settings->getObjectiveFunctions();
+    std::vector<ICQualityFunction*> lib_obj_funcs;
+    for(unsigned int i=0;i<obj_funcs.size();++i) {
+        Function* func = obj_funcs.at(i);
+        Amga2ICQualityFunction* icQualityFunc = new Amga2ICQualityFunction();
+        icQualityFunc->setFunction(func);
+        lib_obj_funcs.emplace_back(icQualityFunc);
+        algorithm->addObjectiveFnc(lib_obj_funcs.at(i));
+    }
+
+    double cross = p_settings->get<double>("CROSS");
+    double mut = p_settings->get<double>("MUT");
+    double di = p_settings->get<double>("DI");
+    double dim = p_settings->get<double>("DIM");
+    int archive_size = p_settings->get<int>("ARCHIVE_SIZE");
+
+    algorithm->setCross(cross);
+    algorithm->setPMut(mut);
+    algorithm->setDi(di);
+    algorithm->setDiM(dim);
+    algorithm->setArchiveSize(archive_size);
+
+    algorithm->setGenerations(p_settings->getGenerations());
+    //algorithm->setGenerations(300);
+
+    algorithm->setFloatSize(p_settings->getFloatSize());
+    //algorithm->setFloatSize(1);
+
+    algorithm->setBinarySize(p_settings->getBinarySize());
+    //algorithm->setBinarySize(0);
+
+    algorithm->setPopSize(p_settings->getPopSize());
+    //algorithm->setPopSize(200);
+
     algorithm->setSeed(0.5);
+
+    for (unsigned int i = 0; i < algorithm->getFloatSize() ; i++) {
+        algorithm->setFLLimit(p_settings->getFLLimit(i), i);
+        //algorithm->setFLLimit(-50,i);
+        algorithm->setFHLimit(p_settings->getFHLimit(i), i);
+        //algorithm->setFHLimit(50,i);
+    }
+
+    for (unsigned int i = 0; i < algorithm->getBinarySize(); i++) {
+        algorithm->setBLLimit(p_settings->getBLLimit(i), i);
+        //algorithm->setBLLimit(1,i);
+        algorithm->setBLLimit(p_settings->getBLLimit(i), i);
+        //algorithm->setBHLimit(5,i);
+    }
 }
 
 void Amga2AlgorithmRunner::setListener(AlgorithmListener *p_listener) {
@@ -76,16 +141,15 @@ void Amga2AlgorithmRunner::run() {
 
     algorithm->setNotifier(&notifier);
 
+//    for (int i = 0; i < algorithm->getFloatSize() ; i++) {
+//        algorithm->setFLLimit(-50,i);
+//        algorithm->setFHLimit(50,i);
+//    }
 
-    for (int i = 0; i < algorithm->getFloatSize() ; i++) {
-        algorithm->setFLLimit(-50,i);
-        algorithm->setFHLimit(50,i);
-    }
-
-    for (int i = 0; i < algorithm->getBinarySize(); i++) {
-        algorithm->setBLLimit(1,i);
-        algorithm->setBHLimit(5,i);
-    }
+//    for (int i = 0; i < algorithm->getBinarySize(); i++) {
+//        algorithm->setBLLimit(1,i);
+//        algorithm->setBHLimit(5,i);
+//    }
 
     //Adding obj functions:
     //algorithm->addObjectiveFnc(&f1);

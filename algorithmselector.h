@@ -13,8 +13,14 @@ public:
     explicit AlgorithmSelector(QObject *parent = 0);
     ~AlgorithmSelector();
 
+    void select(unsigned int p_i);
+
     AlgorithmRunner* getAlgorithmRunner();
     AlgorithmSettings* getAlgorithmSettings();
+
+private:
+    unsigned int m_current_alg;
+    std::vector<std::pair<AlgorithmRunner*, AlgorithmSettings*> > m_algorithms;
 
 signals:
 
