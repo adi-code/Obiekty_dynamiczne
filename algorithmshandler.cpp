@@ -6,7 +6,8 @@
 #include "overshootfunction.h"
 #include "squareerrorintegralfunction.h"
 
-AlgorithmsHandler::AlgorithmsHandler()
+AlgorithmsHandler::AlgorithmsHandler() : m_pop_size(0U), m_iters(0U),
+    m_kr_max(1.0), m_ti_max(1.0), m_td_max(1.0), m_kd_max(1.0)
 {
     m_control_time_function.setEvaluator(&m_evaluator);
     m_overshoot_function.setEvaluator(&m_evaluator);
@@ -16,27 +17,47 @@ AlgorithmsHandler::AlgorithmsHandler()
 void AlgorithmsHandler::SetControlledProcessDimension(
         unsigned int p_controlled_process_dimension)
 {
-    m_controlled_process_dimension = p_controlled_process_dimension;
+//    m_controlled_process_dimension = p_controlled_process_dimension;
+    m_evaluator.SetControlledProcessDimension(p_controlled_process_dimension);
 }
 
 void AlgorithmsHandler::SetMaxResponseTime(double p_response_time)
 {
-    m_response_time = p_response_time;
+//    m_response_time = p_response_time;
+    m_evaluator.SetMaxResponseTime(p_response_time);
 }
 
 void AlgorithmsHandler::SetNumeratorParameters(
         std::vector<double> p_numerator_parameters)
 {
-    m_numerator_parameters = p_numerator_parameters;
+//    m_numerator_parameters = p_numerator_parameters;
+    m_evaluator.SetNumeratorParameters(p_numerator_parameters);
 }
 
 void AlgorithmsHandler::SetDenominatorParameters(std::vector<double> p_denominator_parameters)
 {
-    m_denominator_parameters = p_denominator_parameters;
+//    m_denominator_parameters = p_denominator_parameters;
+    m_evaluator.SetDenominatorParameters(p_denominator_parameters);
 }
 
 void AlgorithmsHandler::SetAlgorithmParameters(const std::vector<double> &p_params) {
     m_algorithm_params = p_params;
+}
+
+void AlgorithmsHandler::SetPopulationSize(const unsigned int &p_size) {
+    m_pop_size = p_size;
+}
+
+void AlgorithmsHandler::SetIterations(const unsigned int &p_iters) {
+    m_iters = p_iters;
+}
+
+void AlgorithmsHandler::SetMaxValues(const double &p_kr_max, const double &p_ti_max,
+                                     const double &p_td_max, const double &p_kd_max) {
+    m_kr_max = p_kr_max;
+    m_ti_max = p_ti_max;
+    m_td_max = p_td_max;
+    m_kd_max = p_kd_max;
 }
 
 void AlgorithmsHandler::Evaluate(double p_max_time,
@@ -128,6 +149,28 @@ void AlgorithmsHandler::Evaluate(double p_max_time,
     }
 }
 
+class StubListener : public AlgorithmListener {
+    void beforeStart(const char* _name) {
+        double s = 2.0;
+        s += 2.0;
+    }
+
+    void afterStop(const char* _name) {
+        double s = 2.0;
+        s += 2.0;
+    }
+
+    void error(const char* _error) {
+        double s = 2.0;
+        s += 2.0;
+    }
+
+    void generationDone(unsigned int _g) {
+        double s = 2.0;
+        s += 2.0;
+    }
+};
+
 void AlgorithmsHandler::RunAlgorithm()
 {
 //    m_controlled_process = new DynamicalSystem(
@@ -160,6 +203,20 @@ void AlgorithmsHandler::RunAlgorithm()
     AlgorithmRunner* runner = m_alg_selector.getAlgorithmRunner();
     AlgorithmSettings* settings = m_alg_selector.getAlgorithmSettings();
 
+    StubListener listener;
+    runner->setListener(&listener);
+    settings->setFloatSize(4);
+    settings->setBinarySize(0);
+
+    double high_limits[] = {m_kr_max, m_ti_max, m_td_max, m_kd_max};
+    for(unsigned int i=0;i<4;++i) {
+        settings->setFLLimit(0, i);
+        settings->setFHLimit(high_limits[i], i);
+    }
+
+    settings->setPopSize(m_pop_size);
+    settings->setGenerations(m_iters);
+
     settings->setParameters(m_algorithm_params);
 
     settings->addObjectiveFunction(&m_control_time_function);
@@ -168,6 +225,8 @@ void AlgorithmsHandler::RunAlgorithm()
 
     runner->configure(settings);
     runner->run();
+
+    emit EndOfAlgorithm();
 }
 
 void AlgorithmsHandler::SelectAlgorithm(unsigned int p_i) {

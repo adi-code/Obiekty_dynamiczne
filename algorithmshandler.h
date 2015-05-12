@@ -24,6 +24,12 @@ private:
     odeint::runge_kutta4<ublas::vector<double> > m_numeric_solver;
     DynamicalSystem* m_controlled_process;
     std::vector<double> m_algorithm_params;
+    unsigned int m_pop_size;
+    unsigned int m_iters;
+    double m_kr_max;
+    double m_ti_max;
+    double m_td_max;
+    double m_kd_max;
 
     AlgorithmSelector m_alg_selector;
     DynamicSystemFunctionEvaluator m_evaluator;
@@ -39,7 +45,10 @@ public:
     void SetNumeratorParameters(std::vector<double> p_numerator_parameters);
     void SetDenominatorParameters(std::vector<double> p_denominator_parameters);
     void SetAlgorithmParameters(const std::vector<double>& p_params);
-
+    void SetPopulationSize(const unsigned int& p_size);
+    void SetIterations(const unsigned int& p_iters);
+    void SetMaxValues(const double& p_kr_max, const double& p_ti_max,
+                      const double& p_td_max, const double& p_kd_max);
     void SelectAlgorithm(unsigned int p_i);
 
 private:

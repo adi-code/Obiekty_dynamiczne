@@ -63,8 +63,9 @@ double AlgorithmSettings::getFHLimit(unsigned int p_i) {
 void AlgorithmSettings::setFHLimit(double p_limit, unsigned int p_i) {
     if(m_f_limits.size() <= p_i) {
         m_f_limits.resize(p_i+1);
-        m_f_limits[p_i].second = p_limit;
     }
+
+    m_f_limits[p_i].second = p_limit;
 }
 
 double AlgorithmSettings::getFLLimit(unsigned int p_i) {
@@ -78,8 +79,9 @@ double AlgorithmSettings::getFLLimit(unsigned int p_i) {
 void AlgorithmSettings::setFLLimit(double p_limit, unsigned int p_i) {
     if(m_f_limits.size() <= p_i) {
         m_f_limits.resize(p_i+1);
-        m_f_limits[p_i].first = p_limit;
     }
+
+    m_f_limits[p_i].first = p_limit;
 }
 
 double AlgorithmSettings::getBHLimit(unsigned int p_i) {
@@ -93,8 +95,9 @@ double AlgorithmSettings::getBHLimit(unsigned int p_i) {
 void AlgorithmSettings::setBHLimit(double p_limit, unsigned int p_i) {
     if(m_b_limits.size() <= p_i) {
         m_b_limits.resize(p_i+1);
-        m_b_limits[p_i].second = p_limit;
     }
+
+    m_b_limits[p_i].second = p_limit;
 }
 
 double AlgorithmSettings::getBLLimit(unsigned int p_i) {
@@ -108,8 +111,9 @@ double AlgorithmSettings::getBLLimit(unsigned int p_i) {
 void AlgorithmSettings::setBLLimit(double p_limit, unsigned int p_i) {
     if(m_b_limits.size() <= p_i) {
         m_b_limits.resize(p_i+1);
-        m_b_limits[p_i].first = p_limit;
     }
+
+    m_b_limits[p_i].first = p_limit;
 }
 
 std::vector<AlgorithmSetting> AlgorithmSettings::getSettingsList() {

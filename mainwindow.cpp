@@ -312,7 +312,20 @@ void MainWindow::PrepareOptimizationAlgorithm()
     m_algorithms_handler->SetDenominatorParameters(denominator_parameters);
     m_algorithms_handler->SetMaxResponseTime(
                 m_spin_box_response_time->value());
+
     m_algorithms_handler->SetAlgorithmParameters(getParameters());
+
+    unsigned int pop_size = static_cast<unsigned int>(m_spin_box_population_size->value());
+    m_algorithms_handler->SetPopulationSize(pop_size);
+
+    unsigned int iterations = static_cast<unsigned int>(m_spin_box_number_of_iterations->value());
+    m_algorithms_handler->SetIterations(iterations);
+
+    double kr_max = static_cast<double>(m_spin_box_max_kr->value());
+    double ti_max = static_cast<double>(m_spin_box_max_ti->value());
+    double td_max = static_cast<double>(m_spin_box_max_td->value());
+    double kd_max = static_cast<double>(m_spin_box_max_kd->value());
+    m_algorithms_handler->SetMaxValues(kr_max, ti_max, td_max, kd_max);
 
     m_label_result->setText("Obliczenia w toku...");
 

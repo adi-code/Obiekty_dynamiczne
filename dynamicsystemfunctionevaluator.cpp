@@ -48,8 +48,16 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
 
     if(p_kr != 0)
     {
+//        m_controlled_process = new DynamicalSystem(
+//                        m_controlled_process_dimension,
+//                        m_numerator_parameters,
+//                        m_denominator_parameters);
         Regulator *regulator = new Regulator(p_kr, p_ti, p_td, p_kd);
-        DynamicalSystem control_system(m_controlled_process, regulator);
+//        DynamicalSystem control_system(m_controlled_process, regulator);
+        DynamicalSystem controlled_process(m_controlled_process_dimension,
+                        m_numerator_parameters,
+                        m_denominator_parameters);
+        DynamicalSystem control_system(&controlled_process, regulator);
         if(control_system.IsSystemStable())
         {
             p_overshoot = 0;

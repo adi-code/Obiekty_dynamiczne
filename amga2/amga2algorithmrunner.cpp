@@ -115,9 +115,11 @@ void Amga2AlgorithmRunner::configure(AlgorithmSettings *p_settings) {
     algorithm->setSeed(0.5);
 
     for (unsigned int i = 0; i < algorithm->getFloatSize() ; i++) {
-        algorithm->setFLLimit(p_settings->getFLLimit(i), i);
+        double fl = p_settings->getFLLimit(i);
+        algorithm->setFLLimit(fl, i);
         //algorithm->setFLLimit(-50,i);
-        algorithm->setFHLimit(p_settings->getFHLimit(i), i);
+        double hl = p_settings->getFHLimit(i);
+        algorithm->setFHLimit(hl, i);
         //algorithm->setFHLimit(50,i);
     }
 
@@ -136,10 +138,14 @@ void Amga2AlgorithmRunner::setListener(AlgorithmListener *p_listener) {
 void Amga2AlgorithmRunner::run() {
     Amga2* algorithm = static_cast<Amga2*>(m_algorithm);
 
-    Amga2ICNotifier notifier;
-    notifier.setListener(m_listener);
+    //Amga2ICNotifier notifier;
+    //notifier.setListener(m_listener);
 
-    algorithm->setNotifier(&notifier);
+    //algorithm->setNotifier(&notifier);
+
+    Amga2ICNotifier* n = new Amga2ICNotifier;
+    n->setListener(m_listener);
+    algorithm->setNotifier(n);
 
 //    for (int i = 0; i < algorithm->getFloatSize() ; i++) {
 //        algorithm->setFLLimit(-50,i);
@@ -158,5 +164,7 @@ void Amga2AlgorithmRunner::run() {
     //algorithm->addConstraintFnc(&g1);
 
     //OPTIMIZATION RUN
+
+    bool configured = algorithm->checkConf();
     algorithm->run();
 }
