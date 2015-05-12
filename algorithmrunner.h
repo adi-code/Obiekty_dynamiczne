@@ -12,11 +12,12 @@ class AlgorithmRunner// : public QObject
 public:
     //explicit AlgorithmRunner(QObject *parent = 0);
     AlgorithmRunner();
-    ~AlgorithmRunner();
+    virtual ~AlgorithmRunner();
 
     virtual void configure(AlgorithmSettings* settings) = 0;
     virtual void setListener(AlgorithmListener* listener) = 0;
     virtual void run() = 0;
+    virtual std::vector<std::vector<double> > getResults() = 0;
 
 //signals:
 

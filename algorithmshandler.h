@@ -37,6 +37,8 @@ private:
     OvershootFunction m_overshoot_function;
     SquareErrorIntegralFunction m_sqi_function;
 
+    std::vector<std::vector<double> > m_results;
+
 public:
     AlgorithmsHandler();
     void SetControlledProcessDimension(
@@ -50,6 +52,8 @@ public:
     void SetMaxValues(const double& p_kr_max, const double& p_ti_max,
                       const double& p_td_max, const double& p_kd_max);
     void SelectAlgorithm(unsigned int p_i);
+    std::vector<std::vector<double> > GetResults();
+    void Notify(const char* p_msg);
 
 private:
     void Evaluate(double p_max_time,
@@ -69,6 +73,7 @@ signals:
     void ShowWidget(const QString& p_label, unsigned int p_type = 0,
                     double p_low_limit = 0, double p_high_limit = 1,
                     double p_value = 0);
+    void SendMessage(const QString& p_msg);
 };
 
 #endif // ALGORITHMSHANDLER_H

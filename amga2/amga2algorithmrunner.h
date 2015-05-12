@@ -16,6 +16,7 @@ public:
     void configure(AlgorithmSettings* p_settings);
     void setListener(AlgorithmListener* p_listener);
     void run();
+    std::vector<std::vector<double> > getResults();
 
 //signals:
 

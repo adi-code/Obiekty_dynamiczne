@@ -8,7 +8,7 @@ class AlgorithmListener : public QObject
     Q_OBJECT
 public:
     explicit AlgorithmListener(QObject *parent = 0);
-    ~AlgorithmListener();
+    virtual ~AlgorithmListener();
 
     // @see libEvol/libEvolOptimizer/ICNotifier.h
     virtual void beforeStart(const char* _name) = 0;

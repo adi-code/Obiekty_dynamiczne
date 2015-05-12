@@ -149,26 +149,50 @@ void AlgorithmsHandler::Evaluate(double p_max_time,
     }
 }
 
-class StubListener : public AlgorithmListener {
-    void beforeStart(const char* _name) {
-        double s = 2.0;
-        s += 2.0;
+class SimpleListener : public AlgorithmListener {
+public:
+    SimpleListener() : AlgorithmListener(), m_alg_handler(NULL) {}
+
+    void setAlgorithmsHandler(AlgorithmsHandler* p_alg_handler) {
+        m_alg_handler = p_alg_handler;
     }
 
-    void afterStop(const char* _name) {
-        double s = 2.0;
-        s += 2.0;
+    void beforeStart(const char* p_name) {
+        if(NULL != m_alg_handler) {
+            //std::ostringstream ss;
+            //ss << p_name;
+            //m_alg_handler->Notify(ss.str().c_str());
+            m_alg_handler->Notify(p_name);
+        }
     }
 
-    void error(const char* _error) {
-        double s = 2.0;
-        s += 2.0;
+    void afterStop(const char* p_name) {
+        if(NULL != m_alg_handler) {
+            //std::ostringstream ss;
+            //ss << p_name;
+            //m_alg_handler->Notify(ss.str().c_str());
+            m_alg_handler->Notify(p_name);
+        }
     }
 
-    void generationDone(unsigned int _g) {
-        double s = 2.0;
-        s += 2.0;
+    void error(const char* p_error) {
+        if(NULL != m_alg_handler) {
+            std::ostringstream ss;
+            ss << "Błąd: " << p_error;
+            m_alg_handler->Notify(ss.str().c_str());
+        }
     }
+
+    void generationDone(unsigned int p_g) {
+        if(NULL != m_alg_handler) {
+            std::ostringstream ss;
+            ss << "Iteracja " << (p_g + 1) << " zakończona...";
+            m_alg_handler->Notify(ss.str().c_str());
+        }
+    }
+
+private:
+    AlgorithmsHandler* m_alg_handler;
 };
 
 void AlgorithmsHandler::RunAlgorithm()
@@ -203,7 +227,8 @@ void AlgorithmsHandler::RunAlgorithm()
     AlgorithmRunner* runner = m_alg_selector.getAlgorithmRunner();
     AlgorithmSettings* settings = m_alg_selector.getAlgorithmSettings();
 
-    StubListener listener;
+    SimpleListener listener;
+    listener.setAlgorithmsHandler(this);
     runner->setListener(&listener);
     settings->setFloatSize(4);
     settings->setBinarySize(0);
@@ -225,6 +250,8 @@ void AlgorithmsHandler::RunAlgorithm()
 
     runner->configure(settings);
     runner->run();
+
+    m_results = runner->getResults();
 
     emit EndOfAlgorithm();
 }
@@ -265,4 +292,13 @@ void AlgorithmsHandler::SelectAlgorithm(unsigned int p_i) {
 
 //    runner->configure(settings);
 //    runner->run();
+}
+
+std::vector<std::vector<double> > AlgorithmsHandler::GetResults() {
+    return m_results;
+}
+
+void AlgorithmsHandler::Notify(const char *p_msg) {
+    QString msg(p_msg);
+    emit SendMessage(msg);
 }

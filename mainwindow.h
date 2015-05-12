@@ -69,6 +69,7 @@ public slots:
     void AddWidget(const QString& p_label, unsigned int p_type = 0,
                    double p_low_limit = 0, double p_high_limit = 1,
                    double p_value = 0);
+    void ShowMessage(const QString& p_msg);
 
 private slots:
     void PrepareOptimizationAlgorithm();

@@ -24,7 +24,7 @@ class AlgorithmSettings// : public QObject
 public:
     //explicit AlgorithmSettings(QObject *parent = 0);
     AlgorithmSettings();
-    ~AlgorithmSettings();
+    virtual ~AlgorithmSettings();
 
     void addObjectiveFunction(Function* p_func);
     std::vector<Function*> getObjectiveFunctions();

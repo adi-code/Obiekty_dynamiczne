@@ -165,6 +165,36 @@ void Amga2AlgorithmRunner::run() {
 
     //OPTIMIZATION RUN
 
-    bool configured = algorithm->checkConf();
+//    bool configured = algorithm->checkConf();
     algorithm->run();
+}
+
+std::vector<std::vector<double> > Amga2AlgorithmRunner::getResults() {
+    std::vector<std::vector<double> > result;
+
+    Amga2* algorithm = static_cast<Amga2*>(m_algorithm);
+    CMultiObjectiveSolutionSet* solution_set = algorithm->getSolutionSet();
+
+    for(CMultiObjectiveSolutionSet::Iterator solution = solution_set->begin();
+        solution != solution_set->end();
+        solution++) {
+
+        std::vector<double> sol;
+
+        for(unsigned int i=0;i<(*solution)->FFloatVars.size();i++) {
+//            std::cout << (*solution)->FFloatVars[i] << '\t';
+//            rf << (*solution)->FFloatVars[i] << '\t';
+            sol.emplace_back((*solution)->FFloatVars[i]);
+        }
+
+        for(unsigned int i=0;i<(*solution)->FObjFncVals.size();i++) {
+//            std::cout << (*solution)->FObjFncVals[i] << '\t';
+//            rf << (*solution)->FObjFncVals[i] << '\t';
+            sol.emplace_back((*solution)->FObjFncVals[i]);
+        }
+
+        result.emplace_back(sol);
+    }
+
+    return result;
 }

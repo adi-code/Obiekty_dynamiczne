@@ -2,6 +2,8 @@
 
 #include "regulator.h"
 
+#include <limits>
+
 DynamicSystemFunctionEvaluator::DynamicSystemFunctionEvaluator()
 {
 
@@ -34,7 +36,7 @@ void DynamicSystemFunctionEvaluator::SetDenominatorParameters(std::vector<double
     m_denominator_parameters = p_denominator_parameters;
 }
 
-std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, unsigned int p_nf) {
+std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, unsigned int /*p_nf*/) {
     double p_kr = p_pf[0];
     double p_ti = p_pf[1];
     double p_td = p_pf[2];
@@ -42,9 +44,9 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
 
     // TODO: remove p_max_time (or rename)
     double p_max_time = m_response_time;
-    double p_control_time = 10000000000000;
-    double p_overshoot = 10000;
-    double p_integral_of_square_error = 1000000000000;
+    double p_control_time = std::numeric_limits<double>::max();//10000000000000;
+    double p_overshoot = std::numeric_limits<double>::max();//10000;
+    double p_integral_of_square_error = std::numeric_limits<double>::max();//1000000000000;
 
     if(p_kr != 0)
     {
@@ -74,18 +76,25 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
             full_step_resposne.push_back(0);
             double time_interval = 0.01;
             int max_time_index = p_max_time / time_interval;
+
+            m_numeric_solver.adjust_size(state_vector);
+
             for(int time_index = 0;
                 time_index <= max_time_index;
                 time_index++)
             {
                 p_integral_of_square_error += (full_step_resposne[time_index] - 1) *
                         (full_step_resposne[time_index] - 1) * time_interval;
-                m_numeric_solver.do_step(control_system,
-                                  state_vector,
-                                  time_index * time_interval,
-                                  time_interval);
-                axpy_prod(control_system.GetCMatrix(), state_vector, y);
-                y += column(control_system.GetDMatrix(), 0);
+                try {
+                    m_numeric_solver.do_step(control_system,
+                                      state_vector,
+                                      time_index * time_interval,
+                                      time_interval);
+                    axpy_prod(control_system.GetCMatrix(), state_vector, y);
+                    y += column(control_system.GetDMatrix(), 0);
+                } catch(const boost::numeric::ublas::bad_size& e) {
+                }
+
                 if(fabs(y(0) - 1) > pow(10, 50))
                 {
                     throw too_big_value;
@@ -119,18 +128,18 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
         }
         else
         {
-            p_control_time = 10000000000000;
-            p_overshoot = 10000;
-            p_integral_of_square_error = 1000000000000;
+            p_control_time = std::numeric_limits<double>::max();//10000000000000;
+            p_overshoot = std::numeric_limits<double>::max();//10000;
+            p_integral_of_square_error = std::numeric_limits<double>::max();//1000000000000;
         }
 
         delete regulator;
     }
     else
     {
-        p_control_time = 10000000000000;
-        p_overshoot = 10000;
-        p_integral_of_square_error = 1000000000000;
+        p_control_time = std::numeric_limits<double>::max();//10000000000000;
+        p_overshoot = std::numeric_limits<double>::max();//10000;
+        p_integral_of_square_error = std::numeric_limits<double>::max();//1000000000000;
     }
 
     std::vector<double> result = {p_control_time, p_overshoot, p_integral_of_square_error};

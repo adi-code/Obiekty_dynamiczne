@@ -3,6 +3,8 @@ CONFIG += console
 
 # enable C++11
 CONFIG += c++11
+# disable boost/multi_array/concept_checks.hpp warnings
+QMAKE_CXXFLAGS += -Wno-unused-local-typedefs
 
 QT += widgets
 
