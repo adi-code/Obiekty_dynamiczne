@@ -107,7 +107,8 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
                         p_control_time = std::numeric_limits<double>::max();
                         p_overshoot = std::numeric_limits<double>::max();
                         p_integral_of_square_error = std::numeric_limits<double>::max();
-                        break;
+                        std::vector<double> result = {p_control_time, p_overshoot, p_integral_of_square_error};
+                        return result;
                     }
 
                     full_step_response.push_back(y(0));
