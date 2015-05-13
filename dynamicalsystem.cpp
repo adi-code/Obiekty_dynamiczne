@@ -11,7 +11,8 @@ DynamicalSystem::DynamicalSystem(unsigned int p_system_dimension,
     m_c_matrix(1, p_system_dimension),
     m_d_matrix(1, 1),
     m_numerator_parameters(p_numerator_parameters),
-    m_denominator_parameters(p_denominator_parameters)
+    m_denominator_parameters(p_denominator_parameters),
+    m_u_part(m_b_matrix, 0)
 {
     if(p_numerator_parameters.size() != p_system_dimension + 1)
     {
@@ -28,7 +29,12 @@ DynamicalSystem::DynamicalSystem(unsigned int p_system_dimension,
 DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
                                  DynamicalSystem *p_regulator) :
     m_system_dimension(p_controlled_process->GetSystemDimension() +
-            p_regulator->GetSystemDimension())
+            p_regulator->GetSystemDimension()),
+    m_a_matrix(m_system_dimension, m_system_dimension),
+    m_b_matrix(m_system_dimension, 1),
+    m_c_matrix(1, m_system_dimension),
+    m_d_matrix(1, 1),
+    m_u_part(m_b_matrix, 0)
 {
     unsigned int controlled_process_dimension =
             p_controlled_process->GetSystemDimension();
@@ -245,7 +251,13 @@ DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
 
 }
 
-DynamicalSystem::DynamicalSystem()
+DynamicalSystem::DynamicalSystem() :
+    m_system_dimension(0),
+    m_a_matrix(m_system_dimension, m_system_dimension),
+    m_b_matrix(m_system_dimension, 1),
+    m_c_matrix(1, m_system_dimension),
+    m_d_matrix(1, 1),
+    m_u_part(m_b_matrix, 0)
 {
 
 }
@@ -342,12 +354,40 @@ bool DynamicalSystem::IsSystemStable()
 void DynamicalSystem::operator ()(const vector<double> &x, vector<double> &dxdt, const double /*t*/)
 {
     axpy_prod(m_a_matrix, x, dxdt);
-    dxdt += column(m_b_matrix, 0);
+//    dxdt += column(m_b_matrix, 0);
+    dxdt += m_u_part;
 }
 
 void DynamicalSystem::CalculateMatrices()
 {
-    for(unsigned int row_iterator = 1; row_iterator <= m_system_dimension;
+    const double coeff = m_numerator_parameters[m_system_dimension] / m_denominator_parameters[m_system_dimension];
+    for(unsigned int i=0;i<m_system_dimension;++i) {
+//        m_b_matrix(i, 0) =  m_numerator_parameters[i] -
+//                m_numerator_parameters[m_system_dimension] *
+//                m_denominator_parameters[i] /
+//                m_denominator_parameters[m_system_dimension];
+        m_b_matrix(i, 0) =  m_numerator_parameters[i] -
+                coeff * m_denominator_parameters[i];
+    }
+
+    const unsigned int dec_sys_dim = m_system_dimension - 1;
+    m_a_matrix(0, dec_sys_dim) = - m_denominator_parameters[0] /
+            m_denominator_parameters[m_system_dimension];
+    for(unsigned int i=1;i<m_system_dimension;++i) {
+        m_a_matrix(i, i-1) = 1;
+        m_a_matrix(i, dec_sys_dim) = - m_denominator_parameters[i] /
+                m_denominator_parameters[m_system_dimension];
+    }
+
+    m_c_matrix(0, dec_sys_dim) = 1 /
+            m_denominator_parameters[m_system_dimension];
+
+    m_d_matrix(0, 0) = m_numerator_parameters[m_system_dimension] /
+            m_denominator_parameters[m_system_dimension];
+
+    m_u_part = column(m_b_matrix, 0);
+
+    /*for(unsigned int row_iterator = 1; row_iterator <= m_system_dimension;
         row_iterator++)
     {
         m_b_matrix(row_iterator - 1, 0) = m_numerator_parameters[row_iterator - 1] -
@@ -384,4 +424,6 @@ void DynamicalSystem::CalculateMatrices()
     }
     m_d_matrix(0, 0) = m_numerator_parameters[m_system_dimension] /
             m_denominator_parameters[m_system_dimension];
+
+    m_u_part = column(m_b_matrix, 0);*/
 }

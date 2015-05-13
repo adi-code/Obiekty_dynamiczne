@@ -68,56 +68,76 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
             boost::numeric::ublas::vector<double> state_vector;
             boost::numeric::ublas::vector<double> y;
             state_vector.resize(control_system.GetSystemDimension());
-            state_vector.clear();
+//            state_vector.clear();
             y.resize(1, 1);
-            y.clear();
-            std::vector<double> full_step_resposne;
-            full_step_resposne.clear();
-            full_step_resposne.push_back(0);
-            double time_interval = 0.01;
+//            y.clear();
+            std::vector<double> full_step_response;
+//            full_step_response.clear();
+            full_step_response.push_back(0);
+            double time_interval = 0.1;
+            double set_point = 1.0;
             int max_time_index = p_max_time / time_interval;
 
             m_numeric_solver.adjust_size(state_vector);
 
-            for(int time_index = 0;
-                time_index <= max_time_index;
-                time_index++)
-            {
-                p_integral_of_square_error += (full_step_resposne[time_index] - 1) *
-                        (full_step_resposne[time_index] - 1) * time_interval;
-                try {
-                    m_numeric_solver.do_step(control_system,
-                                      state_vector,
-                                      time_index * time_interval,
-                                      time_interval);
-                    axpy_prod(control_system.GetCMatrix(), state_vector, y);
-                    y += column(control_system.GetDMatrix(), 0);
-                } catch(const boost::numeric::ublas::bad_size& e) {
-                }
+            DSMatrix c_matrix = control_system.GetCMatrix();
+            DSMatrix d_matrix = control_system.GetDMatrix();
+            ///*const */matrix_column<const DSMatrix> u_part = column(d_matrix, 0);
+            matrix_column<DSMatrix> u_part = column(d_matrix, 0);
 
-                if(fabs(y(0) - 1) > pow(10, 50))
+
+            try {
+                for(int time_index = 1;
+                    time_index <= max_time_index;
+                    time_index++)
                 {
-                    throw too_big_value;
+
+                        m_numeric_solver.do_step(control_system,
+                                          state_vector,
+                                          time_index * time_interval,
+                                          time_interval);
+    //                    axpy_prod(control_system.GetCMatrix(), state_vector, y);
+    //                    y += column(control_system.GetDMatrix(), 0);
+                        axpy_prod(c_matrix, state_vector, y);
+                        y += u_part;
+
+
+                    if(fabs(y(0) - set_point) > pow(10, 50))
+                    {
+                       // throw too_big_value;
+                        p_control_time = std::numeric_limits<double>::max();//10000000000000;
+                        p_overshoot = std::numeric_limits<double>::max();//10000;
+                        p_integral_of_square_error = std::numeric_limits<double>::max();//1000000000000;
+                        std::vector<double> result = {p_control_time, p_overshoot, p_integral_of_square_error};
+                        return result;
+                    }
+
+                    full_step_response.push_back(y(0));
+
+    //                p_integral_of_square_error += (full_step_response[time_index] - 1) *
+    //                        (full_step_response[time_index] - 1) * time_interval;
+                    p_integral_of_square_error += (y(0) - set_point) * (y(0) - set_point) * time_interval;
                 }
-                full_step_resposne.push_back(y(0));
+            } catch(const boost::numeric::ublas::bad_size& /*e*/) {
             }
+
             int time_index = 2;
             while(p_overshoot == 0 && time_index <= max_time_index)
             {
-                if(full_step_resposne[time_index] < full_step_resposne[time_index - 1] &&
-                        full_step_resposne[time_index - 2] < full_step_resposne[time_index - 1] &&
-                        full_step_resposne[time_index - 1] > 1)
+                if(full_step_response[time_index] < full_step_response[time_index - 1] &&
+                        full_step_response[time_index - 2] < full_step_response[time_index - 1] &&
+                        full_step_response[time_index - 1] > set_point)
                 {
-                    p_overshoot = (full_step_resposne[time_index - 1] - 1) * 100;
+                    p_overshoot = (full_step_response[time_index - 1] - set_point) * 100;
                 }
                 time_index++;
             }
-            if(fabs(full_step_resposne[max_time_index] - 1) <= 0.05)
+            if(fabs(full_step_response[max_time_index] - set_point) <= 0.05)
             {
                 time_index = max_time_index - 1;
                 while(time_index >= 0)
                 {
-                    if(fabs(full_step_resposne[time_index] - 1) > 0.05)
+                    if(fabs(full_step_response[time_index] - set_point) > 0.05)
                     {
                         p_control_time = (time_index + 1) * time_interval;
                         break;

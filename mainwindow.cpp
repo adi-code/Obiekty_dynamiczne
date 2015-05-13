@@ -26,37 +26,43 @@ MainWindow::MainWindow(QWidget *parent) :
     m_spin_box_population_size = new QSpinBox;
     m_spin_box_population_size->setMinimum(2);
     m_spin_box_population_size->setMaximum(10*1000);
-    m_spin_box_population_size->setValue(500);
+//    m_spin_box_population_size->setValue(500);
+    m_spin_box_population_size->setValue(25);
     m_spin_box_population_size->setMinimumWidth(50);
 
     m_spin_box_number_of_iterations = new QSpinBox;
     m_spin_box_number_of_iterations->setMinimum(1);
     m_spin_box_number_of_iterations->setMaximum(10*1000);
-    m_spin_box_number_of_iterations->setValue(200);
+//    m_spin_box_number_of_iterations->setValue(200);
+    m_spin_box_number_of_iterations->setValue(8);
     m_spin_box_number_of_iterations->setMinimumWidth(50);
 
     m_spin_box_max_kr = new QSpinBox;
     m_spin_box_max_kr->setMinimum(0);
     m_spin_box_max_kr->setMaximum(10*1000);
-    m_spin_box_max_kr->setValue(1000);
+//    m_spin_box_max_kr->setValue(1000);
+    m_spin_box_max_kr->setValue(100);
     m_spin_box_max_kr->setMinimumWidth(50);
 
     m_spin_box_max_ti = new QSpinBox;
     m_spin_box_max_ti->setMinimum(0);
     m_spin_box_max_ti->setMaximum(10*1000);
-    m_spin_box_max_ti->setValue(1000);
+//    m_spin_box_max_ti->setValue(1000);
+    m_spin_box_max_ti->setValue(100);
     m_spin_box_max_ti->setMinimumWidth(50);
 
     m_spin_box_max_td = new QSpinBox;
     m_spin_box_max_td->setMinimum(0);
     m_spin_box_max_td->setMaximum(10*1000);
-    m_spin_box_max_td->setValue(1000);
+//    m_spin_box_max_td->setValue(1000);
+    m_spin_box_max_td->setValue(100);
     m_spin_box_max_td->setMinimumWidth(50);
 
     m_spin_box_max_kd = new QSpinBox;
     m_spin_box_max_kd->setMinimum(0);
     m_spin_box_max_kd->setMaximum(10*1000);
-    m_spin_box_max_kd->setValue(1000);
+//    m_spin_box_max_kd->setValue(1000);
+    m_spin_box_max_kd->setValue(100);
     m_spin_box_max_kd->setMinimumWidth(50);
 
     m_spin_box_response_time = new QSpinBox;
@@ -284,7 +290,7 @@ void MainWindow::PrepareOptimizationAlgorithm()
     m_spin_box_population_size->setDisabled(true);
 
     // disable custom widgets
-    for(unsigned int i=1;i<m_custom_widgets.size();i+=2) {
+    for(int i=1;i<m_custom_widgets.size();i+=2) {
         m_custom_widgets[i]->setDisabled(true);
     }
 
@@ -344,25 +350,25 @@ void MainWindow::HandleEndOfAlgorithm()
     m_spin_box_population_size->setDisabled(false);
 
     // enable custom widgets
-    for(unsigned int i=1;i<m_custom_widgets.size();i+=2) {
+    for(int i=1;i<m_custom_widgets.size();i+=2) {
         m_custom_widgets[i]->setDisabled(false);
     }
 
     m_label_result->setText("Obliczenia skończone");
 
-    std::vector<std::vector<double> > results = m_algorithms_handler->GetResults();
-    std::ostringstream ss;
-    for(unsigned int i=0;i<results.size();++i) {
-        for(unsigned int j=0;j<results[i].size();++j) {
-            ss << results[i][j] << " ";
-        }
-        ss << std::endl;
-    }
+//    std::vector<std::vector<double> > results = m_algorithms_handler->GetResults();
+//    std::ostringstream ss;
+//    for(unsigned int i=0;i<results.size();++i) {
+//        for(unsigned int j=0;j<results[i].size();++j) {
+//            ss << results[i][j] << " ";
+//        }
+//        ss << std::endl;
+//    }
 
-    QString str(ss.str().c_str());
-    QMessageBox msg_box;
-    msg_box.setText(str);
-    msg_box.exec();
+//    QString str(ss.str().c_str());
+//    QMessageBox msg_box;
+//    msg_box.setText(str);
+//    msg_box.exec();
 }
 
 void MainWindow::ChangeEnabledParameters(int p_controlled_process_dimension)

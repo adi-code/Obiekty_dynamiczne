@@ -6,6 +6,8 @@
 #include "overshootfunction.h"
 #include "squareerrorintegralfunction.h"
 
+#include <fstream>
+
 AlgorithmsHandler::AlgorithmsHandler() : m_pop_size(0U), m_iters(0U),
     m_kr_max(1.0), m_ti_max(1.0), m_td_max(1.0), m_kd_max(1.0)
 {
@@ -252,6 +254,16 @@ void AlgorithmsHandler::RunAlgorithm()
     runner->run();
 
     m_results = runner->getResults();
+
+    std::ofstream out("results.txt");
+    out << m_results.size() << " 4 3" << std::endl;
+    for(unsigned int i=0;i<m_results.size();++i) {
+        for(unsigned int j=0;j<m_results[i].size();++j) {
+            out << m_results[i][j] << " ";
+        }
+        out << std::endl;
+    }
+    out.close();
 
     emit EndOfAlgorithm();
 }

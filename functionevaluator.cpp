@@ -1,6 +1,7 @@
 #include "functionevaluator.h"
 
 #include <sstream>
+#include <iomanip>
 
 FunctionEvaluator::FunctionEvaluator()
 {
@@ -42,6 +43,7 @@ std::vector<double> FunctionEvaluator::getFromCache(const std::string &p_hash) {
 
 std::string FunctionEvaluator::getHash(double *p_pf, unsigned int p_nf) {
     std::ostringstream ss;
+    ss << std::setprecision(17);
     for(unsigned int i=0;i<p_nf;++i) {
         ss << p_pf[i] << " ";
     }
