@@ -68,10 +68,10 @@ HEADERS += \
     libEvol/omniopt/OmniOptOptimizer.h \
 
 INCLUDEPATH += libEvol/libEvolOptimizer \
-                libEvol/emopso \
-                libEvol/amga2 \
-                libEvol/omniopt \
-                libEvol/nsga2
+               libEvol/emopso \
+               libEvol/amga2 \
+               libEvol/omniopt \
+               libEvol/nsga2
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libEvol/ -lLIB_OPTIM

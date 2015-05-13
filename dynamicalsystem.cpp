@@ -299,6 +299,32 @@ std::vector<double> DynamicalSystem::GetDenominator()
 
 bool DynamicalSystem::IsSystemStable()
 {
+//    // alternative method using Eigen library
+//    // checking real part of poles
+//    // remeber to #include "Eigen/Eigenvalues"
+//    CalculateMatrices();
+//    Eigen::MatrixXd m(1,1);
+//    unsigned int size1 = m_a_matrix.size1();
+//    unsigned int size2 = m_a_matrix.size2();
+//    m.resize(size1, size2);
+//    for(unsigned int i=0;i<size1;++i) {
+//        for(unsigned int j=0;j<size2;++j) {
+//            m(i, j) = m_a_matrix(i, j);
+//        }
+//    }
+
+//    Eigen::EigenSolver<Eigen::MatrixXd> es(m);
+//    auto eigenvalues = es.eigenvalues();
+//    unsigned int size = eigenvalues.rows();
+//    for(unsigned int i=0;i<size;++i) {
+//        std::complex<double> lambda = eigenvalues[i];
+//        if(lambda.real() >= 0.0) {
+//            return false;
+//        }
+//    }
+
+//    return true;
+
     DSMatrix hurwitz_matrix(m_system_dimension, m_system_dimension);
     hurwitz_matrix.clear();
     bool is_system_astatic = false;
@@ -362,10 +388,6 @@ void DynamicalSystem::CalculateMatrices()
 {
     const double coeff = m_numerator_parameters[m_system_dimension] / m_denominator_parameters[m_system_dimension];
     for(unsigned int i=0;i<m_system_dimension;++i) {
-//        m_b_matrix(i, 0) =  m_numerator_parameters[i] -
-//                m_numerator_parameters[m_system_dimension] *
-//                m_denominator_parameters[i] /
-//                m_denominator_parameters[m_system_dimension];
         m_b_matrix(i, 0) =  m_numerator_parameters[i] -
                 coeff * m_denominator_parameters[i];
     }

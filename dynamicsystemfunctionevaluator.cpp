@@ -3,6 +3,8 @@
 #include "regulator.h"
 
 #include <limits>
+#include <fstream>
+#include <iomanip>
 
 DynamicSystemFunctionEvaluator::DynamicSystemFunctionEvaluator()
 {
@@ -82,7 +84,6 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
 
             DSMatrix c_matrix = control_system.GetCMatrix();
             DSMatrix d_matrix = control_system.GetDMatrix();
-            ///*const */matrix_column<const DSMatrix> u_part = column(d_matrix, 0);
             matrix_column<DSMatrix> u_part = column(d_matrix, 0);
 
 
@@ -96,8 +97,6 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
                                           state_vector,
                                           time_index * time_interval,
                                           time_interval);
-    //                    axpy_prod(control_system.GetCMatrix(), state_vector, y);
-    //                    y += column(control_system.GetDMatrix(), 0);
                         axpy_prod(c_matrix, state_vector, y);
                         y += u_part;
 
@@ -105,17 +104,14 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
                     if(fabs(y(0) - set_point) > pow(10, 50))
                     {
                        // throw too_big_value;
-                        p_control_time = std::numeric_limits<double>::max();//10000000000000;
-                        p_overshoot = std::numeric_limits<double>::max();//10000;
-                        p_integral_of_square_error = std::numeric_limits<double>::max();//1000000000000;
-                        std::vector<double> result = {p_control_time, p_overshoot, p_integral_of_square_error};
-                        return result;
+                        p_control_time = std::numeric_limits<double>::max();
+                        p_overshoot = std::numeric_limits<double>::max();
+                        p_integral_of_square_error = std::numeric_limits<double>::max();
+                        break;
                     }
 
                     full_step_response.push_back(y(0));
 
-    //                p_integral_of_square_error += (full_step_response[time_index] - 1) *
-    //                        (full_step_response[time_index] - 1) * time_interval;
                     p_integral_of_square_error += (y(0) - set_point) * (y(0) - set_point) * time_interval;
                 }
             } catch(const boost::numeric::ublas::bad_size& /*e*/) {
@@ -148,18 +144,18 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
         }
         else
         {
-            p_control_time = std::numeric_limits<double>::max();//10000000000000;
-            p_overshoot = std::numeric_limits<double>::max();//10000;
-            p_integral_of_square_error = std::numeric_limits<double>::max();//1000000000000;
+            p_control_time = std::numeric_limits<double>::max();
+            p_overshoot = std::numeric_limits<double>::max();
+            p_integral_of_square_error = std::numeric_limits<double>::max();
         }
 
         delete regulator;
     }
     else
     {
-        p_control_time = std::numeric_limits<double>::max();//10000000000000;
-        p_overshoot = std::numeric_limits<double>::max();//10000;
-        p_integral_of_square_error = std::numeric_limits<double>::max();//1000000000000;
+        p_control_time = std::numeric_limits<double>::max();
+        p_overshoot = std::numeric_limits<double>::max();
+        p_integral_of_square_error = std::numeric_limits<double>::max();
     }
 
     std::vector<double> result = {p_control_time, p_overshoot, p_integral_of_square_error};

@@ -226,17 +226,21 @@ void AlgorithmsHandler::RunAlgorithm()
 //    delete m_controlled_process;
 //    emit EndOfAlgorithm();
 
+    m_evaluator.clearCache();
+
     AlgorithmRunner* runner = m_alg_selector.getAlgorithmRunner();
     AlgorithmSettings* settings = m_alg_selector.getAlgorithmSettings();
 
     SimpleListener listener;
     listener.setAlgorithmsHandler(this);
     runner->setListener(&listener);
-    settings->setFloatSize(4);
+
+    unsigned int vars = 4;
+    settings->setFloatSize(vars);
     settings->setBinarySize(0);
 
     double high_limits[] = {m_kr_max, m_ti_max, m_td_max, m_kd_max};
-    for(unsigned int i=0;i<4;++i) {
+    for(unsigned int i=0;i<vars;++i) {
         settings->setFLLimit(0, i);
         settings->setFHLimit(high_limits[i], i);
     }
@@ -246,6 +250,7 @@ void AlgorithmsHandler::RunAlgorithm()
 
     settings->setParameters(m_algorithm_params);
 
+    unsigned int funcs = 3;
     settings->addObjectiveFunction(&m_control_time_function);
     settings->addObjectiveFunction(&m_overshoot_function);
     settings->addObjectiveFunction(&m_sqi_function);
@@ -255,11 +260,12 @@ void AlgorithmsHandler::RunAlgorithm()
 
     m_results = runner->getResults();
 
+    // saving results
     std::ofstream out("results.txt");
-    out << m_results.size() << " 4 3" << std::endl;
+    out << m_results.size() << ' ' << vars << ' ' << funcs << std::endl;
     for(unsigned int i=0;i<m_results.size();++i) {
         for(unsigned int j=0;j<m_results[i].size();++j) {
-            out << m_results[i][j] << " ";
+            out << m_results[i][j] << ' ';
         }
         out << std::endl;
     }

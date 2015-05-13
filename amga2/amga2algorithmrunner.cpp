@@ -182,14 +182,10 @@ std::vector<std::vector<double> > Amga2AlgorithmRunner::getResults() {
         std::vector<double> sol;
 
         for(unsigned int i=0;i<(*solution)->FFloatVars.size();i++) {
-//            std::cout << (*solution)->FFloatVars[i] << '\t';
-//            rf << (*solution)->FFloatVars[i] << '\t';
             sol.emplace_back((*solution)->FFloatVars[i]);
         }
 
         for(unsigned int i=0;i<(*solution)->FObjFncVals.size();i++) {
-//            std::cout << (*solution)->FObjFncVals[i] << '\t';
-//            rf << (*solution)->FObjFncVals[i] << '\t';
             sol.emplace_back((*solution)->FObjFncVals[i]);
         }
 
