@@ -5,13 +5,14 @@ using namespace boost::numeric::ublas;
 DynamicalSystem::DynamicalSystem(unsigned int p_system_dimension,
                                  std::vector<double> p_numerator_parameters,
                                  std::vector<double> p_denominator_parameters) :
+    m_system_dimension(p_system_dimension),
     m_a_matrix(p_system_dimension, p_system_dimension),
     m_b_matrix(p_system_dimension, 1),
     m_c_matrix(1, p_system_dimension),
     m_d_matrix(1, 1),
-    m_system_dimension(p_system_dimension),
     m_numerator_parameters(p_numerator_parameters),
-    m_denominator_parameters(p_denominator_parameters)
+    m_denominator_parameters(p_denominator_parameters),
+    m_u_part(m_b_matrix, 0)
 {
     if(p_numerator_parameters.size() != p_system_dimension + 1)
     {
@@ -28,7 +29,12 @@ DynamicalSystem::DynamicalSystem(unsigned int p_system_dimension,
 DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
                                  DynamicalSystem *p_regulator) :
     m_system_dimension(p_controlled_process->GetSystemDimension() +
-            p_regulator->GetSystemDimension())
+            p_regulator->GetSystemDimension()),
+    m_a_matrix(m_system_dimension, m_system_dimension),
+    m_b_matrix(m_system_dimension, 1),
+    m_c_matrix(1, m_system_dimension),
+    m_d_matrix(1, 1),
+    m_u_part(m_b_matrix, 0)
 {
     unsigned int controlled_process_dimension =
             p_controlled_process->GetSystemDimension();
@@ -38,10 +44,10 @@ DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
     //Wyznaczanie współczynników licznika
     m_numerator_parameters.clear();
     m_numerator_parameters.resize(m_system_dimension + 1, 0);
-    for(int numerator_index = 0; numerator_index <= m_system_dimension / 2;
+    for(unsigned int numerator_index = 0; numerator_index <= m_system_dimension / 2;
          numerator_index++)
     {
-        for(int iterator = 0; iterator <= numerator_index; iterator++)
+        for(unsigned int iterator = 0; iterator <= numerator_index; iterator++)
         {
             if(p_controlled_process->GetNumerator().size() > iterator &&
                     p_regulator->GetNumerator().size() > numerator_index - iterator)
@@ -62,7 +68,7 @@ DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
     }
     if(m_system_dimension % 2 == 0)
     {
-        for(int iterator = 0; iterator <= (m_system_dimension / 2) + 1; iterator++)
+        for(unsigned int iterator = 0; iterator <= (m_system_dimension / 2) + 1; iterator++)
         {
             if(p_controlled_process->GetNumerator().size() > iterator &&
                     p_regulator->GetNumerator().size() > (m_system_dimension / 2) + 1 - iterator)
@@ -77,10 +83,10 @@ DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
     //Wyznaczanie współczynników mianownika
     m_denominator_parameters.clear();
     m_denominator_parameters.resize(m_system_dimension + 1, 0);
-    for(int denominator_index = 0; denominator_index <= m_system_dimension / 2;
+    for(unsigned int denominator_index = 0; denominator_index <= m_system_dimension / 2;
          denominator_index++)
     {
-        for(int iterator = 0; iterator <= denominator_index; iterator++)
+        for(unsigned int iterator = 0; iterator <= denominator_index; iterator++)
         {
             if(p_controlled_process->GetDenominator().size() > iterator &&
                     p_regulator->GetDenominator().size() > denominator_index - iterator)
@@ -103,7 +109,7 @@ DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
     }
     if(m_system_dimension % 2 == 0)
     {
-        for(int iterator = 0; iterator <= (m_system_dimension / 2) + 1; iterator++)
+        for(unsigned int iterator = 0; iterator <= (m_system_dimension / 2) + 1; iterator++)
         {
             if(p_controlled_process->GetDenominator().size() > iterator &&
                     p_regulator->GetDenominator().size() > (m_system_dimension / 2) + 1 - iterator)
@@ -245,7 +251,13 @@ DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
 
 }
 
-DynamicalSystem::DynamicalSystem()
+DynamicalSystem::DynamicalSystem() :
+    m_system_dimension(0),
+    m_a_matrix(m_system_dimension, m_system_dimension),
+    m_b_matrix(m_system_dimension, 1),
+    m_c_matrix(1, m_system_dimension),
+    m_d_matrix(1, 1),
+    m_u_part(m_b_matrix, 0)
 {
 
 }
@@ -287,10 +299,36 @@ std::vector<double> DynamicalSystem::GetDenominator()
 
 bool DynamicalSystem::IsSystemStable()
 {
+//    // alternative method using Eigen library
+//    // checking real part of poles
+//    // remeber to #include "Eigen/Eigenvalues"
+//    CalculateMatrices();
+//    Eigen::MatrixXd m(1,1);
+//    unsigned int size1 = m_a_matrix.size1();
+//    unsigned int size2 = m_a_matrix.size2();
+//    m.resize(size1, size2);
+//    for(unsigned int i=0;i<size1;++i) {
+//        for(unsigned int j=0;j<size2;++j) {
+//            m(i, j) = m_a_matrix(i, j);
+//        }
+//    }
+
+//    Eigen::EigenSolver<Eigen::MatrixXd> es(m);
+//    auto eigenvalues = es.eigenvalues();
+//    unsigned int size = eigenvalues.rows();
+//    for(unsigned int i=0;i<size;++i) {
+//        std::complex<double> lambda = eigenvalues[i];
+//        if(lambda.real() >= 0.0) {
+//            return false;
+//        }
+//    }
+
+//    return true;
+
     DSMatrix hurwitz_matrix(m_system_dimension, m_system_dimension);
     hurwitz_matrix.clear();
     bool is_system_astatic = false;
-    for(int parameter_index = 0;
+    for(unsigned int parameter_index = 0;
         parameter_index <= m_system_dimension;
         parameter_index++)
     {
@@ -310,17 +348,16 @@ bool DynamicalSystem::IsSystemStable()
         }
     }
 
-    for(int row_index = 1;
+    for(unsigned int row_index = 1;
         row_index <= m_system_dimension;
         row_index++)
     {
-        for(int column_index = 1;
+        for(unsigned int column_index = 1;
             column_index <= m_system_dimension;
             column_index++)
         {
-            int parameter_index;
-            parameter_index = (2 * column_index) - row_index;
-            if(parameter_index >= 0 && parameter_index <= m_system_dimension)
+            int parameter_index = (2 * column_index) - row_index;
+            if(parameter_index >= 0 && static_cast<unsigned int>(parameter_index) <= m_system_dimension)
             {
                 hurwitz_matrix(row_index - 1, column_index - 1) =
                         m_denominator_parameters[parameter_index];
@@ -328,7 +365,7 @@ bool DynamicalSystem::IsSystemStable()
         }
     }
     DSMatrix auxilary_matrix;
-    for(int index = 1; index < m_system_dimension - 1; index++)
+    for(unsigned int index = 1; index < m_system_dimension - 1; index++)
     {
         auxilary_matrix.resize(index + 1, index + 1);
         auxilary_matrix = project(hurwitz_matrix, range(0, index +1), range(0, index +1));
@@ -340,15 +377,39 @@ bool DynamicalSystem::IsSystemStable()
     return true;
 }
 
-void DynamicalSystem::operator ()(const vector<double> &x, vector<double> &dxdt, const double t)
+void DynamicalSystem::operator ()(const vector<double> &x, vector<double> &dxdt, const double /*t*/)
 {
     axpy_prod(m_a_matrix, x, dxdt);
-    dxdt += column(m_b_matrix, 0);
+//    dxdt += column(m_b_matrix, 0);
+    dxdt += m_u_part;
 }
 
 void DynamicalSystem::CalculateMatrices()
 {
-    for(int row_iterator = 1; row_iterator <= m_system_dimension;
+    const double coeff = m_numerator_parameters[m_system_dimension] / m_denominator_parameters[m_system_dimension];
+    for(unsigned int i=0;i<m_system_dimension;++i) {
+        m_b_matrix(i, 0) =  m_numerator_parameters[i] -
+                coeff * m_denominator_parameters[i];
+    }
+
+    const unsigned int dec_sys_dim = m_system_dimension - 1;
+    m_a_matrix(0, dec_sys_dim) = - m_denominator_parameters[0] /
+            m_denominator_parameters[m_system_dimension];
+    for(unsigned int i=1;i<m_system_dimension;++i) {
+        m_a_matrix(i, i-1) = 1;
+        m_a_matrix(i, dec_sys_dim) = - m_denominator_parameters[i] /
+                m_denominator_parameters[m_system_dimension];
+    }
+
+    m_c_matrix(0, dec_sys_dim) = 1 /
+            m_denominator_parameters[m_system_dimension];
+
+    m_d_matrix(0, 0) = m_numerator_parameters[m_system_dimension] /
+            m_denominator_parameters[m_system_dimension];
+
+    m_u_part = column(m_b_matrix, 0);
+
+    /*for(unsigned int row_iterator = 1; row_iterator <= m_system_dimension;
         row_iterator++)
     {
         m_b_matrix(row_iterator - 1, 0) = m_numerator_parameters[row_iterator - 1] -
@@ -364,7 +425,7 @@ void DynamicalSystem::CalculateMatrices()
             m_c_matrix(0, row_iterator - 1) = 1 /
                     m_denominator_parameters[m_system_dimension];
         }
-        for(int column_iterator = 1; column_iterator <= m_system_dimension;
+        for(unsigned int column_iterator = 1; column_iterator <= m_system_dimension;
             column_iterator++)
         {
             if(row_iterator == column_iterator + 1)
@@ -385,4 +446,6 @@ void DynamicalSystem::CalculateMatrices()
     }
     m_d_matrix(0, 0) = m_numerator_parameters[m_system_dimension] /
             m_denominator_parameters[m_system_dimension];
+
+    m_u_part = column(m_b_matrix, 0);*/
 }

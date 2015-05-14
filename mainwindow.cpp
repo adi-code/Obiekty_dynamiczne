@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 
+#include <QMessageBox>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
@@ -13,9 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_second_algorithm_button = new QRadioButton(tr("Algorytm nr 2"));
     m_third_algorithm_button = new QRadioButton(tr("Algorytm nr 3"));
     m_algorithm_buttons_group = new QButtonGroup;
-    m_algorithm_buttons_group->addButton(m_first_algorithm_button);
-    m_algorithm_buttons_group->addButton(m_second_algorithm_button);
-    m_algorithm_buttons_group->addButton(m_third_algorithm_button);
+    m_algorithm_buttons_group->addButton(m_first_algorithm_button, 0);
+    m_algorithm_buttons_group->addButton(m_second_algorithm_button, 1);
+    m_algorithm_buttons_group->addButton(m_third_algorithm_button, 2);
     m_push_button_run_algorithm->setFont(small_bold_font);
     m_first_algorithm_button->setFont(big_bold_font);
     m_second_algorithm_button->setFont(big_bold_font);
@@ -24,37 +26,43 @@ MainWindow::MainWindow(QWidget *parent) :
     m_spin_box_population_size = new QSpinBox;
     m_spin_box_population_size->setMinimum(2);
     m_spin_box_population_size->setMaximum(10*1000);
-    m_spin_box_population_size->setValue(500);
+//    m_spin_box_population_size->setValue(500);
+    m_spin_box_population_size->setValue(25);
     m_spin_box_population_size->setMinimumWidth(50);
 
     m_spin_box_number_of_iterations = new QSpinBox;
     m_spin_box_number_of_iterations->setMinimum(1);
     m_spin_box_number_of_iterations->setMaximum(10*1000);
-    m_spin_box_number_of_iterations->setValue(200);
+//    m_spin_box_number_of_iterations->setValue(200);
+    m_spin_box_number_of_iterations->setValue(8);
     m_spin_box_number_of_iterations->setMinimumWidth(50);
 
     m_spin_box_max_kr = new QSpinBox;
     m_spin_box_max_kr->setMinimum(0);
     m_spin_box_max_kr->setMaximum(10*1000);
-    m_spin_box_max_kr->setValue(1000);
+//    m_spin_box_max_kr->setValue(1000);
+    m_spin_box_max_kr->setValue(100);
     m_spin_box_max_kr->setMinimumWidth(50);
 
     m_spin_box_max_ti = new QSpinBox;
     m_spin_box_max_ti->setMinimum(0);
     m_spin_box_max_ti->setMaximum(10*1000);
-    m_spin_box_max_ti->setValue(1000);
+//    m_spin_box_max_ti->setValue(1000);
+    m_spin_box_max_ti->setValue(100);
     m_spin_box_max_ti->setMinimumWidth(50);
 
     m_spin_box_max_td = new QSpinBox;
     m_spin_box_max_td->setMinimum(0);
     m_spin_box_max_td->setMaximum(10*1000);
-    m_spin_box_max_td->setValue(1000);
+//    m_spin_box_max_td->setValue(1000);
+    m_spin_box_max_td->setValue(100);
     m_spin_box_max_td->setMinimumWidth(50);
 
     m_spin_box_max_kd = new QSpinBox;
     m_spin_box_max_kd->setMinimum(0);
     m_spin_box_max_kd->setMaximum(10*1000);
-    m_spin_box_max_kd->setValue(1000);
+//    m_spin_box_max_kd->setValue(1000);
+    m_spin_box_max_kd->setValue(100);
     m_spin_box_max_kd->setMinimumWidth(50);
 
     m_spin_box_response_time = new QSpinBox;
@@ -208,6 +216,12 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(PrepareOptimizationAlgorithm()));
     connect(m_spin_box_controlled_process_dimension, SIGNAL(valueChanged(int)),
             this, SLOT(ChangeEnabledParameters(int)));
+    connect(m_algorithms_handler, SIGNAL(ShowWidget(QString,uint,double,double,double)),
+            this, SLOT(AddWidget(QString,uint,double,double,double)));
+    connect(m_algorithms_handler, SIGNAL(SendMessage(QString)),
+            this, SLOT(ShowMessage(QString)));
+    connect(m_algorithm_buttons_group, SIGNAL(buttonClicked(int)),
+            this, SLOT(SelectAlgorithm(int)));
 }
 
 MainWindow::~MainWindow()
@@ -252,6 +266,8 @@ MainWindow::~MainWindow()
     delete m_spin_box_numerator_parameter;
     delete m_spin_box_denominator_parameter;
 
+    ClearCustomWidgets();
+
     delete m_layout;
     delete m_main_widget;
 }
@@ -260,7 +276,7 @@ void MainWindow::PrepareOptimizationAlgorithm()
 {
     m_push_button_run_algorithm->setDisabled(true);
     m_spin_box_controlled_process_dimension->setDisabled(true);
-    for(int index = 0; index <= m_controlled_process_dimension; index++)
+    for(unsigned int index = 0; index <= m_controlled_process_dimension; index++)
     {
         m_spin_box_numerator_parameter[index]->setDisabled(true);
         m_spin_box_denominator_parameter[index]->setDisabled(true);
@@ -273,13 +289,18 @@ void MainWindow::PrepareOptimizationAlgorithm()
     m_spin_box_number_of_iterations->setDisabled(true);
     m_spin_box_population_size->setDisabled(true);
 
+    // disable custom widgets
+    for(int i=1;i<m_custom_widgets.size();i+=2) {
+        m_custom_widgets[i]->setDisabled(true);
+    }
+
     m_algorithms_handler->SetControlledProcessDimension(
                 m_controlled_process_dimension);
     std::vector<double> numerator_parameters;
     std::vector<double> denominator_parameters;
     numerator_parameters.clear();
     denominator_parameters.clear();
-    for(int index = 0; index <= m_controlled_process_dimension; index ++)
+    for(unsigned int index = 0; index <= m_controlled_process_dimension; index ++)
     {
         numerator_parameters.push_back(
                     m_spin_box_numerator_parameter[index]->value());
@@ -291,6 +312,20 @@ void MainWindow::PrepareOptimizationAlgorithm()
     m_algorithms_handler->SetMaxResponseTime(
                 m_spin_box_response_time->value());
 
+    m_algorithms_handler->SetAlgorithmParameters(getParameters());
+
+    unsigned int pop_size = static_cast<unsigned int>(m_spin_box_population_size->value());
+    m_algorithms_handler->SetPopulationSize(pop_size);
+
+    unsigned int iterations = static_cast<unsigned int>(m_spin_box_number_of_iterations->value());
+    m_algorithms_handler->SetIterations(iterations);
+
+    double kr_max = static_cast<double>(m_spin_box_max_kr->value());
+    double ti_max = static_cast<double>(m_spin_box_max_ti->value());
+    double td_max = static_cast<double>(m_spin_box_max_td->value());
+    double kd_max = static_cast<double>(m_spin_box_max_kd->value());
+    m_algorithms_handler->SetMaxValues(kr_max, ti_max, td_max, kd_max);
+
     m_label_result->setText("Obliczenia w toku...");
 
     m_calculating_thread.start();
@@ -301,7 +336,7 @@ void MainWindow::HandleEndOfAlgorithm()
 {
     m_push_button_run_algorithm->setDisabled(false);
     m_spin_box_controlled_process_dimension->setDisabled(false);
-    for(int index = 0; index <= m_controlled_process_dimension; index++)
+    for(unsigned int index = 0; index <= m_controlled_process_dimension; index++)
     {
         m_spin_box_numerator_parameter[index]->setDisabled(false);
         m_spin_box_denominator_parameter[index]->setDisabled(false);
@@ -314,21 +349,46 @@ void MainWindow::HandleEndOfAlgorithm()
     m_spin_box_number_of_iterations->setDisabled(false);
     m_spin_box_population_size->setDisabled(false);
 
+    // enable custom widgets
+    for(int i=1;i<m_custom_widgets.size();i+=2) {
+        m_custom_widgets[i]->setDisabled(false);
+    }
+
     m_label_result->setText("Obliczenia skończone");
+
+//    std::vector<std::vector<double> > results = m_algorithms_handler->GetResults();
+//    std::ostringstream ss;
+//    for(unsigned int i=0;i<results.size();++i) {
+//        for(unsigned int j=0;j<results[i].size();++j) {
+//            ss << results[i][j] << " ";
+//        }
+//        ss << std::endl;
+//    }
+
+//    QString str(ss.str().c_str());
+//    QMessageBox msg_box;
+//    msg_box.setText(str);
+//    msg_box.exec();
 }
 
 void MainWindow::ChangeEnabledParameters(int p_controlled_process_dimension)
 {
-    if(m_controlled_process_dimension > p_controlled_process_dimension)
+    if(p_controlled_process_dimension < 0) {
+        return;
+    }
+
+    unsigned int dim = p_controlled_process_dimension;
+
+    if(m_controlled_process_dimension > dim)
     {
-        for(int index = 0;
-            index < m_controlled_process_dimension - p_controlled_process_dimension;
+        for(unsigned int index = 0;
+            index < m_controlled_process_dimension - dim;
             index++)
         {
             m_spin_box_numerator_parameter[
-                    p_controlled_process_dimension + index + 1]->setDisabled(true);
+                    dim + index + 1]->setDisabled(true);
             m_spin_box_denominator_parameter[
-                    p_controlled_process_dimension + index + 1]->setDisabled(true);
+                    dim + index + 1]->setDisabled(true);
         }
     }
     else
@@ -344,4 +404,75 @@ void MainWindow::ChangeEnabledParameters(int p_controlled_process_dimension)
         }
     }
     m_controlled_process_dimension = p_controlled_process_dimension;
+}
+
+void MainWindow::AddWidget(const QString &p_label, unsigned int p_type,
+                           double p_low_limit, double p_high_limit, double p_value) {
+    QFont common_font("Verdana", 10);
+
+    QLabel* label_widget = new QLabel(p_label);
+    label_widget->setFont(common_font);
+    label_widget->setAlignment(Qt::AlignCenter);
+
+    int index = m_custom_widgets.size() / 2;
+
+    QWidget* widget;
+
+    if(p_type == 0) { // double
+        QDoubleSpinBox* double_spin_box = new QDoubleSpinBox();
+        double_spin_box->setMinimum(p_low_limit);
+        double_spin_box->setMaximum(p_high_limit);
+        double_spin_box->setSingleStep(0.01);
+        double_spin_box->setValue(p_value);
+        widget = double_spin_box;
+    } else { // p_type == 1 // int
+        QSpinBox* spin_box = new QSpinBox();
+        spin_box->setMinimum(p_low_limit);
+        spin_box->setMaximum(p_high_limit);
+        spin_box->setValue(p_value);
+        widget = spin_box;
+    }
+
+    m_layout->addWidget(label_widget, 5 + index, 0, Qt::AlignCenter);
+    m_layout->addWidget(widget, 5 + index, 1, Qt::AlignCenter);
+
+    m_custom_widgets.append(label_widget);
+    m_custom_widgets.append(widget);
+}
+
+void MainWindow::ClearCustomWidgets() {
+    for(int i=0;i<m_custom_widgets.size();++i) {
+        delete m_custom_widgets[i];
+    }
+
+    m_custom_widgets.clear();
+}
+
+std::vector<double> MainWindow::getParameters() {
+    std::vector<double> params;
+
+    for(int i=1;i<m_custom_widgets.size();i+=2) {
+        QWidget* spin_box_widget = m_custom_widgets[i];
+        // bad idea, avoid dynamic_cast
+        QDoubleSpinBox* double_spin_box = dynamic_cast<QDoubleSpinBox*>(spin_box_widget);
+        QSpinBox* spin_box = dynamic_cast<QSpinBox*>(spin_box_widget);
+        double value = 0.0;
+        if(NULL != double_spin_box) {
+            value = double_spin_box->value();
+        } else if(NULL != spin_box) {
+            value = static_cast<double>(spin_box->value());
+        }
+        params.emplace_back(value);
+    }
+
+    return params;
+}
+
+void MainWindow::SelectAlgorithm(int p_i) {
+    ClearCustomWidgets();
+    m_algorithms_handler->SelectAlgorithm(p_i);
+}
+
+void MainWindow::ShowMessage(const QString &p_msg) {
+    m_label_result->setText(p_msg);
 }

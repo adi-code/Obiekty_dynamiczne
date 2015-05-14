@@ -41,7 +41,7 @@ double DSMatrix::GetDeterminant()
         if(lu_factorize(*this, auxilary_matrix) ) {
             determinant = 0.0;
         } else {
-            for(int i = 0; i < size1(); i++)
+            for(unsigned int i = 0; i < size1(); i++)
             {
                 determinant *= data()[i * size1()+ i];
             }

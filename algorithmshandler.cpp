@@ -1,29 +1,65 @@
 #include "algorithmshandler.h"
 
-AlgorithmsHandler::AlgorithmsHandler()
+#include "algorithmselector.h"
+#include "controltimefunction.h"
+#include "dynamicsystemfunctionevaluator.h"
+#include "overshootfunction.h"
+#include "squareerrorintegralfunction.h"
+
+#include <fstream>
+
+AlgorithmsHandler::AlgorithmsHandler() : m_pop_size(0U), m_iters(0U),
+    m_kr_max(1.0), m_ti_max(1.0), m_td_max(1.0), m_kd_max(1.0)
 {
+    m_control_time_function.setEvaluator(&m_evaluator);
+    m_overshoot_function.setEvaluator(&m_evaluator);
+    m_sqi_function.setEvaluator(&m_evaluator);
 }
 
 void AlgorithmsHandler::SetControlledProcessDimension(
         unsigned int p_controlled_process_dimension)
 {
-    m_controlled_process_dimension = p_controlled_process_dimension;
+//    m_controlled_process_dimension = p_controlled_process_dimension;
+    m_evaluator.SetControlledProcessDimension(p_controlled_process_dimension);
 }
 
 void AlgorithmsHandler::SetMaxResponseTime(double p_response_time)
 {
-    m_response_time = p_response_time;
+//    m_response_time = p_response_time;
+    m_evaluator.SetMaxResponseTime(p_response_time);
 }
 
 void AlgorithmsHandler::SetNumeratorParameters(
         std::vector<double> p_numerator_parameters)
 {
-    m_numerator_parameters = p_numerator_parameters;
+//    m_numerator_parameters = p_numerator_parameters;
+    m_evaluator.SetNumeratorParameters(p_numerator_parameters);
 }
 
 void AlgorithmsHandler::SetDenominatorParameters(std::vector<double> p_denominator_parameters)
 {
-    m_denominator_parameters = p_denominator_parameters;
+//    m_denominator_parameters = p_denominator_parameters;
+    m_evaluator.SetDenominatorParameters(p_denominator_parameters);
+}
+
+void AlgorithmsHandler::SetAlgorithmParameters(const std::vector<double> &p_params) {
+    m_algorithm_params = p_params;
+}
+
+void AlgorithmsHandler::SetPopulationSize(const unsigned int &p_size) {
+    m_pop_size = p_size;
+}
+
+void AlgorithmsHandler::SetIterations(const unsigned int &p_iters) {
+    m_iters = p_iters;
+}
+
+void AlgorithmsHandler::SetMaxValues(const double &p_kr_max, const double &p_ti_max,
+                                     const double &p_td_max, const double &p_kd_max) {
+    m_kr_max = p_kr_max;
+    m_ti_max = p_ti_max;
+    m_td_max = p_td_max;
+    m_kd_max = p_kd_max;
 }
 
 void AlgorithmsHandler::Evaluate(double p_max_time,
@@ -115,32 +151,172 @@ void AlgorithmsHandler::Evaluate(double p_max_time,
     }
 }
 
-void AlgorithmsHandler::RunAlgorithm()
-{
-    m_controlled_process = new DynamicalSystem(
-                m_controlled_process_dimension,
-                m_numerator_parameters,
-                m_denominator_parameters);
-    double control_time;
-    double overshoot;
-    double integral_of_square_error;
-    try
-    {
-        Evaluate(m_response_time, control_time,
-                 overshoot, integral_of_square_error,
-                 2, 20, 10, 10);
+class SimpleListener : public AlgorithmListener {
+public:
+    SimpleListener() : AlgorithmListener(), m_alg_handler(NULL) {}
+
+    void setAlgorithmsHandler(AlgorithmsHandler* p_alg_handler) {
+        m_alg_handler = p_alg_handler;
     }
-    catch(EXCEPTION_TYPE evaluate_exception)
-    {
-        if(evaluate_exception == too_big_value)
-        {
-            control_time = 10000000000000;
-            overshoot = 10000;
-            integral_of_square_error = 1000000000000;
+
+    void beforeStart(const char* p_name) {
+        if(NULL != m_alg_handler) {
+            //std::ostringstream ss;
+            //ss << p_name;
+            //m_alg_handler->Notify(ss.str().c_str());
+            m_alg_handler->Notify(p_name);
         }
     }
 
-    std::cout << control_time << " " << overshoot << " " << integral_of_square_error << std::endl;
-    delete m_controlled_process;
+    void afterStop(const char* p_name) {
+        if(NULL != m_alg_handler) {
+            //std::ostringstream ss;
+            //ss << p_name;
+            //m_alg_handler->Notify(ss.str().c_str());
+            m_alg_handler->Notify(p_name);
+        }
+    }
+
+    void error(const char* p_error) {
+        if(NULL != m_alg_handler) {
+            std::ostringstream ss;
+            ss << "Błąd: " << p_error;
+            m_alg_handler->Notify(ss.str().c_str());
+        }
+    }
+
+    void generationDone(unsigned int p_g) {
+        if(NULL != m_alg_handler) {
+            std::ostringstream ss;
+            ss << "Iteracja " << (p_g + 1) << " zakończona...";
+            m_alg_handler->Notify(ss.str().c_str());
+        }
+    }
+
+private:
+    AlgorithmsHandler* m_alg_handler;
+};
+
+void AlgorithmsHandler::RunAlgorithm()
+{
+//    m_controlled_process = new DynamicalSystem(
+//                m_controlled_process_dimension,
+//                m_numerator_parameters,
+//                m_denominator_parameters);
+//    double control_time;
+//    double overshoot;
+//    double integral_of_square_error;
+//    try
+//    {
+//        Evaluate(m_response_time, control_time,
+//                 overshoot, integral_of_square_error,
+//                 2, 20, 10, 10);
+//    }
+//    catch(EXCEPTION_TYPE evaluate_exception)
+//    {
+//        if(evaluate_exception == too_big_value)
+//        {
+//            control_time = 10000000000000;
+//            overshoot = 10000;
+//            integral_of_square_error = 1000000000000;
+//        }
+//    }
+
+//    std::cout << control_time << " " << overshoot << " " << integral_of_square_error << std::endl;
+//    delete m_controlled_process;
+//    emit EndOfAlgorithm();
+
+    m_evaluator.clearCache();
+
+    AlgorithmRunner* runner = m_alg_selector.getAlgorithmRunner();
+    AlgorithmSettings* settings = m_alg_selector.getAlgorithmSettings();
+
+    SimpleListener listener;
+    listener.setAlgorithmsHandler(this);
+    runner->setListener(&listener);
+
+    unsigned int vars = 4;
+    settings->setFloatSize(vars);
+    settings->setBinarySize(0);
+
+    double high_limits[] = {m_kr_max, m_ti_max, m_td_max, m_kd_max};
+    for(unsigned int i=0;i<vars;++i) {
+        settings->setFLLimit(0, i);
+        settings->setFHLimit(high_limits[i], i);
+    }
+
+    settings->setPopSize(m_pop_size);
+    settings->setGenerations(m_iters);
+
+    settings->setParameters(m_algorithm_params);
+
+    unsigned int funcs = 3;
+    settings->addObjectiveFunction(&m_control_time_function);
+    settings->addObjectiveFunction(&m_overshoot_function);
+    settings->addObjectiveFunction(&m_sqi_function);
+
+    runner->configure(settings);
+    runner->run();
+
+    m_results = runner->getResults();
+
+    // saving results
+    std::ofstream out("results.txt");
+    out << m_results.size() << ' ' << vars << ' ' << funcs << std::endl;
+    for(unsigned int i=0;i<m_results.size();++i) {
+        for(unsigned int j=0;j<m_results[i].size();++j) {
+            out << m_results[i][j] << ' ';
+        }
+        out << std::endl;
+    }
+    out.close();
+
     emit EndOfAlgorithm();
+}
+
+void AlgorithmsHandler::SelectAlgorithm(unsigned int p_i) {
+    m_alg_selector.select(p_i);
+
+    AlgorithmSettings* settings = m_alg_selector.getAlgorithmSettings();
+    std::vector<AlgorithmSetting> settingList = settings->getSettingsList();
+    for(unsigned int i=0;i<settingList.size();++i) {
+        AlgorithmSetting s = settingList[i];
+        emit ShowWidget(QString::fromUtf8(s.m_label.c_str(), s.m_label.size()),
+                        s.m_type, s.m_min, s.m_max, s.m_default);
+    }
+
+//    emit ShowWidget("ABC", 0, 0.0, 1.0, 0.5);
+//    emit ShowWidget("DEF", 1, 0, 1000, 100);
+
+//    AlgorithmSelector selector;
+//    AlgorithmRunner* runner = selector.getAlgorithmRunner();
+//    AlgorithmSettings* settings = selector.getAlgorithmSettings();
+
+//    DynamicSystemFunctionEvaluator evaluator;
+
+//    ControlTimeFunction controlTimeFunction;
+//    OvershootFunction overshootFunction;
+//    SquareErrorIntegralFunction sqiFunction;
+
+//    controlTimeFunction.setEvaluator(&evaluator);
+//    overshootFunction.setEvaluator(&evaluator);
+//    sqiFunction.setEvaluator(&evaluator);
+
+//    settings->setParameters(m_algorithm_params);
+
+//    settings->addObjectiveFunction(&controlTimeFunction);
+//    settings->addObjectiveFunction(&overshootFunction);
+//    settings->addObjectiveFunction(&sqiFunction);
+
+//    runner->configure(settings);
+//    runner->run();
+}
+
+std::vector<std::vector<double> > AlgorithmsHandler::GetResults() {
+    return m_results;
+}
+
+void AlgorithmsHandler::Notify(const char *p_msg) {
+    QString msg(p_msg);
+    emit SendMessage(msg);
 }
