@@ -166,6 +166,11 @@ void Amga2AlgorithmRunner::run() {
     //OPTIMIZATION RUN
 
 //    bool configured = algorithm->checkConf();
+//    if(configured)
+//    {
+//        algorithm->run();
+//    }
+
     algorithm->run();
 }
 

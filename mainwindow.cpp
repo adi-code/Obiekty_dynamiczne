@@ -11,8 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QFont common_font("Verdana", 10);
 
     m_push_button_run_algorithm = new QPushButton(tr("Uruchom algorytm"));
-    m_first_algorithm_button = new QRadioButton(tr("Algorytm nr 1"));
-    m_second_algorithm_button = new QRadioButton(tr("Algorytm nr 2"));
+    m_first_algorithm_button = new QRadioButton(tr("AMGA 2"));
+    m_second_algorithm_button = new QRadioButton(tr("EMOPSO"));
     m_third_algorithm_button = new QRadioButton(tr("Algorytm nr 3"));
     m_algorithm_buttons_group = new QButtonGroup;
     m_algorithm_buttons_group->addButton(m_first_algorithm_button, 0);

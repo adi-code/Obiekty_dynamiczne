@@ -26,7 +26,9 @@ SOURCES += main.cpp \
     functionevaluator.cpp \
     dynamicsystemfunctionevaluator.cpp \
     overshootfunction.cpp \
-    squareerrorintegralfunction.cpp
+    squareerrorintegralfunction.cpp \
+    emopso/emopsoalgorithmsettings.cpp \
+    emopso/emopsoalgorithmrunner.cpp
 
 HEADERS += \
     dynamicalsystem.h \
@@ -47,7 +49,9 @@ HEADERS += \
     functionevaluator.h \
     dynamicsystemfunctionevaluator.h \
     overshootfunction.h \
-    squareerrorintegralfunction.h
+    squareerrorintegralfunction.h \
+    emopso/emopsoalgorithmsettings.h \
+    emopso/emopsoalgorithmrunner.h
 
 # libEvolOptimizer
 
