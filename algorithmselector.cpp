@@ -4,6 +4,8 @@
 #include "amga2/amga2algorithmsettings.h"
 #include "emopso/emopsoalgorithmrunner.h"
 #include "emopso/emopsoalgorithmsettings.h"
+#include "nsga2/nsga2algorithmrunner.h"
+#include "nsga2/nsga2algorithmsettings.h"
 
 AlgorithmSelector::AlgorithmSelector(QObject *parent) : QObject(parent), m_current_alg(0)
 {
@@ -15,6 +17,10 @@ AlgorithmSelector::AlgorithmSelector(QObject *parent) : QObject(parent), m_curre
     m_algorithms.emplace_back(
                 std::make_pair<AlgorithmRunner*, AlgorithmSettings*>(
                     new EmopsoAlgorithmRunner(), new EmopsoAlgorithmSettings()));
+    // NSGA2
+    m_algorithms.emplace_back(
+                std::make_pair<AlgorithmRunner*, AlgorithmSettings*>(
+                    new Nsga2AlgorithmRunner(), new Nsga2AlgorithmSettings()));
 }
 
 AlgorithmSelector::~AlgorithmSelector()

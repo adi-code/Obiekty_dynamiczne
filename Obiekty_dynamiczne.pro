@@ -28,7 +28,9 @@ SOURCES += main.cpp \
     overshootfunction.cpp \
     squareerrorintegralfunction.cpp \
     emopso/emopsoalgorithmsettings.cpp \
-    emopso/emopsoalgorithmrunner.cpp
+    emopso/emopsoalgorithmrunner.cpp \
+    nsga2/nsga2algorithmsettings.cpp \
+    nsga2/nsga2algorithmrunner.cpp
 
 HEADERS += \
     dynamicalsystem.h \
@@ -51,7 +53,9 @@ HEADERS += \
     overshootfunction.h \
     squareerrorintegralfunction.h \
     emopso/emopsoalgorithmsettings.h \
-    emopso/emopsoalgorithmrunner.h
+    emopso/emopsoalgorithmrunner.h \
+    nsga2/nsga2algorithmsettings.h \
+    nsga2/nsga2algorithmrunner.h
 
 # libEvolOptimizer
 

@@ -1,9 +1,6 @@
 #ifndef EMOPSOALGORITHMSETTINGS_H
 #define EMOPSOALGORITHMSETTINGS_H
 
-
-#include <QObject>
-
 #include "algorithmsettings.h"
 
 class EmopsoAlgorithmSettings : public AlgorithmSettings
