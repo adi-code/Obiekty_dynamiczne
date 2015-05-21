@@ -30,7 +30,50 @@ SOURCES += main.cpp \
     emopso/emopsoalgorithmsettings.cpp \
     emopso/emopsoalgorithmrunner.cpp \
     nsga2/nsga2algorithmsettings.cpp \
-    nsga2/nsga2algorithmrunner.cpp
+    nsga2/nsga2algorithmrunner.cpp \
+    libEvol/amga2/Amga2.cpp \
+    libEvol/amga2/Individual.cpp \
+    libEvol/amga2/RandomNumberGenerator.cpp \
+    libEvol/emopso/efile.cpp \
+    libEvol/emopso/emopso.cpp \
+    libEvol/emopso/Particle.cpp \
+    libEvol/libEvolOptimizer/ICEvolOptimizer.cpp \
+    libEvol/libEvolOptimizer/ICMultiObjectiveOptimizer.cpp \
+    libEvol/libEvolOptimizer/ICQualityFunction.cpp \
+    libEvol/libEvolOptimizer/ICSingleObjOptimizer.cpp \
+    libEvol/libEvolOptimizer/messages.cpp \
+    libEvol/libEvolOptimizer/mtrand.cpp \
+    libEvol/nsga2/CNSGA2Optimizer.cpp \
+    libEvol/nsga2/NSGA2.cpp \
+    libEvol/omniopt/OmniOptOptimizer.cpp \
+    libEvol/omniopt/priv_omniopt/allocate.cpp \
+    libEvol/omniopt/priv_omniopt/crossover.cpp \
+    libEvol/omniopt/priv_omniopt/crowddist.cpp \
+    libEvol/omniopt/priv_omniopt/decode.cpp \
+    libEvol/omniopt/priv_omniopt/display.cpp \
+    libEvol/omniopt/priv_omniopt/dominance.cpp \
+    libEvol/omniopt/priv_omniopt/eval.cpp \
+    libEvol/omniopt/priv_omniopt/fillnds.cpp \
+    libEvol/omniopt/priv_omniopt/global.cpp \
+    libEvol/omniopt/priv_omniopt/initialize.cpp \
+    libEvol/omniopt/priv_omniopt/input.cpp \
+    libEvol/omniopt/priv_omniopt/list.cpp \
+    libEvol/omniopt/priv_omniopt/merge.cpp \
+    libEvol/omniopt/priv_omniopt/mutation.cpp \
+    libEvol/omniopt/priv_omniopt/output.cpp \
+    libEvol/omniopt/priv_omniopt/pdef.cpp \
+    libEvol/omniopt/priv_omniopt/pdefinit.cpp \
+    libEvol/omniopt/priv_omniopt/rand.cpp \
+    libEvol/omniopt/priv_omniopt/rank.cpp \
+    libEvol/omniopt/priv_omniopt/report.cpp \
+    libEvol/omniopt/priv_omniopt/sampleprob1.cpp \
+    libEvol/omniopt/priv_omniopt/sampleprob2.cpp \
+    libEvol/omniopt/priv_omniopt/sampleprob3.cpp \
+    libEvol/omniopt/priv_omniopt/sampleprob4.cpp \
+    libEvol/omniopt/priv_omniopt/sampleprob5.cpp \
+    libEvol/omniopt/priv_omniopt/sort.cpp \
+    libEvol/omniopt/priv_omniopt/tourselect.cpp \
+    libEvol/omniopt/priv_omniopt/utility.cpp
 
 HEADERS += \
     dynamicalsystem.h \
@@ -55,25 +98,29 @@ HEADERS += \
     emopso/emopsoalgorithmsettings.h \
     emopso/emopsoalgorithmrunner.h \
     nsga2/nsga2algorithmsettings.h \
-    nsga2/nsga2algorithmrunner.h
+    nsga2/nsga2algorithmrunner.h \
+    libEvol/amga2/Amga2.h \
+    libEvol/amga2/Individual.h \
+    libEvol/amga2/RandomNumberGenerator.h \
+    libEvol/emopso/efile.h \
+    libEvol/emopso/emopso.h \
+    libEvol/emopso/Particle.h \
+    libEvol/libEvolOptimizer/ICEvolOptimizer.h \
+    libEvol/libEvolOptimizer/ICMultiObjectiveOptimizer.h \
+    libEvol/libEvolOptimizer/ICNotifier.h \
+    libEvol/libEvolOptimizer/ICParticle.h \
+    libEvol/libEvolOptimizer/ICQualityFunction.h \
+    libEvol/libEvolOptimizer/ICSingleObjOptimizer.h \
+    libEvol/libEvolOptimizer/messages.h \
+    libEvol/libEvolOptimizer/mtrand.h \
+    libEvol/nsga2/CNSGA2Optimizer.h \
+    libEvol/nsga2/NSGA2.h \
+    libEvol/omniopt/OmniOptOptimizer.h \
+    libEvol/omniopt/priv_omniopt/global.h \
+    libEvol/omniopt/priv_omniopt/pdef.h \
+    libEvol/omniopt/priv_omniopt/rand.h
 
 # libEvolOptimizer
-
-HEADERS += \
-    libEvol/amga2/Individual.h \
-    libEvol/amga2/Amga2.h \
-    libEvol/emopso/Particle.h \
-    libEvol/emopso/emopso.h \
-    libEvol/libEvolOptimizer/mtrand.h \
-    libEvol/libEvolOptimizer/messages.h \
-    libEvol/libEvolOptimizer/ICSingleObjOptimizer.h \
-    libEvol/libEvolOptimizer/ICQualityFunction.h \
-    libEvol/libEvolOptimizer/ICParticle.h \
-    libEvol/libEvolOptimizer/ICNotifier.h \
-    libEvol/libEvolOptimizer/ICMultiObjectiveOptimizer.h \
-    libEvol/libEvolOptimizer/ICEvolOptimizer.h \
-    libEvol/nsga2/CNSGA2Optimizer.h \
-    libEvol/omniopt/OmniOptOptimizer.h \
 
 INCLUDEPATH += libEvol/libEvolOptimizer \
                libEvol/emopso \
@@ -81,16 +128,3 @@ INCLUDEPATH += libEvol/libEvolOptimizer \
                libEvol/omniopt \
                libEvol/nsga2
 
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/libEvol/ -lLIB_OPTIM
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/libEvol/ -lLIB_OPTIM
-else:unix: LIBS += -L$$PWD/libEvol/ -lLIB_OPTIM
-
-INCLUDEPATH += $$PWD/libEvol/
-DEPENDPATH += $$PWD/libEvol/
-
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/libEvol/libLIB_OPTIM.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libEvol/libLIB_OPTIM.a
-else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/libEvol/LIB_OPTIM.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/libEvol/LIB_OPTIM.lib
-else:unix: PRE_TARGETDEPS += $$PWD/libEvol/libLIB_OPTIM.a

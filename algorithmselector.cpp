@@ -33,6 +33,20 @@ AlgorithmSelector::~AlgorithmSelector()
 
 AlgorithmRunner* AlgorithmSelector::getAlgorithmRunner() {
     if(m_algorithms.size() > m_current_alg) {
+        delete m_algorithms[m_current_alg].first;
+        m_algorithms[m_current_alg].first = NULL;
+        if(m_current_alg == 0)
+        {
+            m_algorithms[m_current_alg].first = new Amga2AlgorithmRunner();
+        }
+        else if(m_current_alg == 1)
+        {
+            m_algorithms[m_current_alg].first = new EmopsoAlgorithmRunner();
+        }
+        else if(m_current_alg == 2)
+        {
+            m_algorithms[m_current_alg].first = new Nsga2AlgorithmRunner();
+        }
         return m_algorithms[m_current_alg].first;
     }
 

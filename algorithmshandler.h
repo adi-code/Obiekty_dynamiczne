@@ -30,6 +30,7 @@ private:
     double m_ti_max;
     double m_td_max;
     double m_kd_max;
+    QThread* m_parent_thread;
 
     AlgorithmSelector m_alg_selector;
     DynamicSystemFunctionEvaluator m_evaluator;
@@ -54,6 +55,7 @@ public:
     void SelectAlgorithm(unsigned int p_i);
     std::vector<std::vector<double> > GetResults();
     void Notify(const char* p_msg);
+    void setParentThread(QThread *p_parent_thread);
 
 private:
     void Evaluate(double p_max_time,

@@ -114,6 +114,11 @@ void EmopsoAlgorithmRunner::configure(AlgorithmSettings *p_settings)
     algorithm->setPopSize(p_settings->getPopSize());
     //algorithm->setPopSize(200);
 
+    if(algorithm->getPopSize() % algorithm->getNuberOfClusters() != 0)
+    {
+        throw inproper_algorithm_configuration;
+    }
+
     algorithm->setSeed(0.5);
 
     for (unsigned int i = 0; i < algorithm->getFloatSize() ; i++) {

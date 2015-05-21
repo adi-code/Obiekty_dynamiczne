@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_third_algorithm_button->setFont(big_bold_font);
 
     m_spin_box_population_size = new QSpinBox;
-    m_spin_box_population_size->setMinimum(2);
+    m_spin_box_population_size->setMinimum(10);
     m_spin_box_population_size->setMaximum(10*1000);
 //    m_spin_box_population_size->setValue(500);
     m_spin_box_population_size->setValue(25);
@@ -203,7 +203,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_controlled_process_dimension = 1;
 
     m_algorithms_handler = new AlgorithmsHandler;
-    m_algorithms_handler->moveToThread(&m_calculating_thread);
+    m_algorithms_handler->setParentThread(thread());
+    m_calculating_thread.start(QThread::HighestPriority);
+//    m_algorithms_handler->moveToThread(&m_calculating_thread);
 
 
     connect(this, SIGNAL(RunAlgorithm()),
@@ -270,6 +272,8 @@ MainWindow::~MainWindow()
 
     delete m_layout;
     delete m_main_widget;
+
+    delete m_algorithms_handler;
 }
 
 void MainWindow::PrepareOptimizationAlgorithm()
@@ -288,6 +292,10 @@ void MainWindow::PrepareOptimizationAlgorithm()
     m_spin_box_max_ti->setDisabled(true);
     m_spin_box_number_of_iterations->setDisabled(true);
     m_spin_box_population_size->setDisabled(true);
+
+    m_first_algorithm_button->setDisabled(true);
+    m_second_algorithm_button->setDisabled(true);
+    m_third_algorithm_button->setDisabled(true);
 
     // disable custom widgets
     for(int i=1;i<m_custom_widgets.size();i+=2) {
@@ -327,8 +335,7 @@ void MainWindow::PrepareOptimizationAlgorithm()
     m_algorithms_handler->SetMaxValues(kr_max, ti_max, td_max, kd_max);
 
     m_label_result->setText("Obliczenia w toku...");
-
-    m_calculating_thread.start();
+    m_algorithms_handler->moveToThread(&m_calculating_thread);
     emit RunAlgorithm();
 }
 
@@ -348,6 +355,10 @@ void MainWindow::HandleEndOfAlgorithm()
     m_spin_box_max_ti->setDisabled(false);
     m_spin_box_number_of_iterations->setDisabled(false);
     m_spin_box_population_size->setDisabled(false);
+
+    m_first_algorithm_button->setDisabled(false);
+    m_second_algorithm_button->setDisabled(false);
+    m_third_algorithm_button->setDisabled(false);
 
     // enable custom widgets
     for(int i=1;i<m_custom_widgets.size();i+=2) {

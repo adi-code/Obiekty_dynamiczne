@@ -255,7 +255,18 @@ void AlgorithmsHandler::RunAlgorithm()
     settings->addObjectiveFunction(&m_overshoot_function);
     settings->addObjectiveFunction(&m_sqi_function);
 
-    runner->configure(settings);
+    try
+    {
+        runner->configure(settings);
+    }
+    catch(EXCEPTION_TYPE exception)
+    {
+        //TODO: konkretniejsza obsługa wyjątku
+        moveToThread(m_parent_thread);
+        emit EndOfAlgorithm();
+        return;
+    }
+
     runner->run();
 
     m_results = runner->getResults();
@@ -271,6 +282,7 @@ void AlgorithmsHandler::RunAlgorithm()
     }
     out.close();
 
+    moveToThread(m_parent_thread);
     emit EndOfAlgorithm();
 }
 
@@ -319,4 +331,9 @@ std::vector<std::vector<double> > AlgorithmsHandler::GetResults() {
 void AlgorithmsHandler::Notify(const char *p_msg) {
     QString msg(p_msg);
     emit SendMessage(msg);
+}
+
+void AlgorithmsHandler::setParentThread(QThread *p_parent_thread)
+{
+    m_parent_thread = p_parent_thread;
 }

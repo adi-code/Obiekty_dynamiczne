@@ -2,6 +2,7 @@
 #define EMOPSOALGORITHMRUNNER_H
 
 #include "algorithmrunner.h"
+#include "enumerated_types.h"
 
 class EmopsoAlgorithmRunner : public AlgorithmRunner
 {
