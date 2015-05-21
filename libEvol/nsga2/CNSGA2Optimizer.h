@@ -15,6 +15,8 @@ class CNSGA2Optimizer  : public ICMultiObjectiveOptimizer {
      */
     CNSGA2Optimizer();
 
+    static CNSGA2Optimizer* gNSGA2Optimizer;
+
     /** Destructor
      */
     ~CNSGA2Optimizer();
@@ -94,5 +96,5 @@ class CNSGA2Optimizer  : public ICMultiObjectiveOptimizer {
 
 };
 
-extern CNSGA2Optimizer* gNSGA2Optimizer;
+//extern CNSGA2Optimizer* CNSGA2Optimizer::gNSGA2Optimizer;
 #endif

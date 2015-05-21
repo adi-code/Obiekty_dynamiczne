@@ -101,7 +101,7 @@ void Amga2AlgorithmRunner::configure(AlgorithmSettings *p_settings) {
     algorithm->setArchiveSize(archive_size);
 
     algorithm->setGenerations(p_settings->getGenerations());
-    //algorithm->setGenerations(300);
+//    algorithm->setGenerations(10);
 
     algorithm->setFloatSize(p_settings->getFloatSize());
     //algorithm->setFloatSize(1);
@@ -166,6 +166,11 @@ void Amga2AlgorithmRunner::run() {
     //OPTIMIZATION RUN
 
 //    bool configured = algorithm->checkConf();
+//    if(configured)
+//    {
+//        algorithm->run();
+//    }
+
     algorithm->run();
 }
 

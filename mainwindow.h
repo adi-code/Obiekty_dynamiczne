@@ -12,6 +12,7 @@
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QThread>
+#include <QApplication>
 #include <iostream>
 
 class MainWindow : public QMainWindow
