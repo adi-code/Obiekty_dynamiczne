@@ -81,12 +81,57 @@ DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
     }
 
     //Wyznaczanie współczynników mianownika
+    m_numerator_parameters.clear();
+    m_numerator_parameters.resize(m_system_dimension + 1, 0);
+    for(int numerator_index = 0; numerator_index <= m_system_dimension / 2;
+         numerator_index++)
+    {
+        for(int iterator = 0; iterator <= numerator_index; iterator++)
+        {
+            if(p_controlled_process->GetNumerator().size() > iterator &&
+                    p_regulator->GetNumerator().size() > numerator_index - iterator)
+            {
+                m_numerator_parameters[numerator_index] +=
+                        p_controlled_process->GetNumerator()[iterator] *
+                        p_regulator->GetNumerator()[numerator_index - iterator];
+            }
+            if(iterator <= numerator_index &&
+                    controlled_process_dimension >= iterator)
+            {
+                m_numerator_parameters[m_system_dimension - numerator_index] +=
+                        p_controlled_process->GetNumerator()[controlled_process_dimension - iterator] *
+                        p_regulator->GetNumerator()[regulator_dimension + iterator - numerator_index];
+            }
+
+        }
+    }
+    if(m_system_dimension % 2 == 0)
+    {
+        m_numerator_parameters[(m_system_dimension / 2)] /= 2;
+//        m_denominator_parameters[(m_system_dimension / 2)] /= 2;
+    }
+
+//    if(m_system_dimension % 2 == 0)
+//    {
+//        for(int iterator = 0; iterator <= (m_system_dimension / 2); iterator++)
+//        {
+//            if(p_controlled_process->GetNumerator().size() > iterator &&
+//                    p_regulator->GetNumerator().size() > (m_system_dimension / 2) - iterator)
+//            {
+//                m_numerator_parameters[(m_system_dimension / 2)] +=
+//                        p_controlled_process->GetNumerator()[iterator] *
+//                        p_regulator->GetNumerator()[(m_system_dimension / 2) - iterator];
+//            }
+//        }
+//    }
+
+    //Wyznaczanie współczynników mianownika
     m_denominator_parameters.clear();
     m_denominator_parameters.resize(m_system_dimension + 1, 0);
-    for(unsigned int denominator_index = 0; denominator_index <= m_system_dimension / 2;
+    for(int denominator_index = 0; denominator_index <= m_system_dimension / 2;
          denominator_index++)
     {
-        for(unsigned int iterator = 0; iterator <= denominator_index; iterator++)
+        for(int iterator = 0; iterator <= denominator_index; iterator++)
         {
             if(p_controlled_process->GetDenominator().size() > iterator &&
                     p_regulator->GetDenominator().size() > denominator_index - iterator)
@@ -107,21 +152,28 @@ DynamicalSystem::DynamicalSystem(DynamicalSystem *p_controlled_process,
         m_denominator_parameters[m_system_dimension - denominator_index] +=
                 m_numerator_parameters[m_system_dimension - denominator_index];
     }
+
     if(m_system_dimension % 2 == 0)
     {
-        for(unsigned int iterator = 0; iterator <= (m_system_dimension / 2) + 1; iterator++)
-        {
-            if(p_controlled_process->GetDenominator().size() > iterator &&
-                    p_regulator->GetDenominator().size() > (m_system_dimension / 2) + 1 - iterator)
-            {
-                m_denominator_parameters[(m_system_dimension / 2) + 1] +=
-                        p_controlled_process->GetDenominator()[iterator] *
-                        p_regulator->GetDenominator()[(m_system_dimension / 2) + 1 - iterator];
-            }
-
-        }
-        m_denominator_parameters[(m_system_dimension / 2) + 1] += m_numerator_parameters[(m_system_dimension / 2) + 1];
+//        m_numerator_parameters[(m_system_dimension / 2)] /= 2;
+        m_denominator_parameters[(m_system_dimension / 2)] /= 2;
     }
+
+//    if(m_system_dimension % 2 == 0)
+//    {
+//        for(int iterator = 0; iterator <= (m_system_dimension / 2); iterator++)
+//        {
+//            if(p_controlled_process->GetDenominator().size() > iterator &&
+//                    p_regulator->GetDenominator().size() > (m_system_dimension / 2) - iterator)
+//            {
+//                m_denominator_parameters[(m_system_dimension / 2)] +=
+//                        p_controlled_process->GetDenominator()[iterator] *
+//                        p_regulator->GetDenominator()[(m_system_dimension / 2) - iterator];
+//            }
+
+//        }
+//        m_denominator_parameters[(m_system_dimension / 2)] += m_numerator_parameters[(m_system_dimension / 2)];
+//    }
 
     m_a_matrix.resize(m_system_dimension, m_system_dimension);
     m_a_matrix.clear();
