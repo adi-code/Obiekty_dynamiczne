@@ -191,7 +191,7 @@ void EMOPSO::flight(){
             particles[_i].vel[_j]=W*particles[_i].vel[_j]+C1*rnd(0,1)*(_gbestarchparticle.x[_j]-particles[_i].x[_j])+C2*rnd(0,1)*(particles[_i].xpbest[_j]-particles[_i].x[_j]);
 
             //uwaga - w razie czego nie stosować perturbacji!!!
-			//perturbation(_i);
+            perturbation(_i);
     		particles[_i].x[_j]+=particles[_i].vel[_j];
 
             if (_j>=ndimensions-getBinarySize()){

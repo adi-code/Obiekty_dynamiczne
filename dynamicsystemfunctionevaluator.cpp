@@ -76,7 +76,7 @@ std::vector<double> DynamicSystemFunctionEvaluator::evaluateImpl(double* p_pf, u
             std::vector<double> full_step_response;
 //            full_step_response.clear();
             full_step_response.push_back(0);
-            double time_interval = 0.1;
+            double time_interval = 0.02;
             double set_point = 1.0;
             int max_time_index = p_max_time / time_interval;
 
