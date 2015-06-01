@@ -224,24 +224,24 @@ void AlgorithmsHandler::RunAlgorithm()
     // the following code is used for
     // testing purposes in order not to choose
     // all parameters from GUI before running test
-    {
-        SetMaxResponseTime(40.0);
-//        SetControlledProcessDimension(2);
-//        std::vector<double> numerator = {10, 0, 0};
-//        std::vector<double> denominator = {1, 5, 20};
-        SetControlledProcessDimension(4);
-        std::vector<double> numerator = {5, -20, 0, 0, 0};
-        std::vector<double> denominator = {1, 10, 30, 100, 150};
-        SetNumeratorParameters(numerator);
-        SetDenominatorParameters(denominator);
-        std::vector<double> alg_params = {0.1, 0.05, 0.5, 10.0, 100.0};
-        SetAlgorithmParameters(alg_params);
-        SetPopulationSize(50);
-        SetIterations(30);
-        //SetMaxValues(250.0, 250.0, 100.0, 250.0);
-        SetMaxValues(25.0, 25.0, 25.0, 25.0);
-    }
-    // DEBUG
+//    {
+//        SetMaxResponseTime(40.0);
+////        SetControlledProcessDimension(2);
+////        std::vector<double> numerator = {10, 0, 0};
+////        std::vector<double> denominator = {1, 5, 20};
+//        SetControlledProcessDimension(4);
+//        std::vector<double> numerator = {5, -20, 0, 0, 0};
+//        std::vector<double> denominator = {1, 10, 30, 100, 150};
+//        SetNumeratorParameters(numerator);
+//        SetDenominatorParameters(denominator);
+//        std::vector<double> alg_params = {0.1, 0.05, 0.5, 10.0, 100.0};
+//        SetAlgorithmParameters(alg_params);
+//        SetPopulationSize(50);
+//        SetIterations(30);
+//        //SetMaxValues(250.0, 250.0, 100.0, 250.0);
+//        SetMaxValues(25.0, 25.0, 25.0, 25.0);
+//    }
+//    // DEBUG
 
     m_evaluator.clearCache();
 
