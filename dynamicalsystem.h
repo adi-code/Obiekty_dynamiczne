@@ -47,6 +47,7 @@ public:
     std::vector<double> GetNumerator();
     std::vector<double> GetDenominator();
     bool IsSystemStable();
+    std::pair<double, double> GetTimeResponseParams();
 
     void operator() ( const boost::numeric::ublas::vector<double> &x ,
                       boost::numeric::ublas::vector<double> &dxdt , const double t);

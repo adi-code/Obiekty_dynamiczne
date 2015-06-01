@@ -180,18 +180,15 @@ void EMOPSO::flight(){
     int _whichcluster=(int)_i/(nparticles/nclusters);
     int _gbestselected;
 	//wybranie losowego lidera... ale z archiwum najlepszych do tej pory!
-
     _gbestselected=archive->selectClusteredRandomSolution(_whichcluster);
     Particle _gbestarchparticle(ndimensions,nobjectives, nconstr);
     _gbestarchparticle = archive->solutions[_gbestselected];
-
     for(int _k(0);_k<flyTime;_k++){ //there was 5 in here instead of 1. No idea why...
     	//ilość generacji jednego PSO - była ustawiona na 5
 		for(int _j(0);_j<ndimensions;_j++){
             particles[_i].vel[_j]=W*particles[_i].vel[_j]+C1*rnd(0,1)*(_gbestarchparticle.x[_j]-particles[_i].x[_j])+C2*rnd(0,1)*(particles[_i].xpbest[_j]-particles[_i].x[_j]);
-
-            //uwaga - w razie czego nie stosować perturbacji!!!
-            perturbation(_i);
+					//uwaga - w razie czego nie stosować perturbacji!!!
+			perturbation(_i);
     		particles[_i].x[_j]+=particles[_i].vel[_j];
 
             if (_j>=ndimensions-getBinarySize()){

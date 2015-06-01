@@ -13,13 +13,11 @@
 //---------------------------------------------------------------------------
 
 
-//CNSGA2Optimizer* CNSGA2Optimizer::gNSGA2Optimizer = NULL;
-CNSGA2Optimizer* CNSGA2Optimizer::gNSGA2Optimizer = NULL;
-
+CNSGA2Optimizer* gNSGA2Optimizer = NULL;
 
 CNSGA2Optimizer::CNSGA2Optimizer() : ICMultiObjectiveOptimizer() {
 
-//    if(gNSGA2Optimizer) delete gNSGA2Optimizer;
+    if(gNSGA2Optimizer) delete gNSGA2Optimizer;
   gNSGA2Optimizer = this;
   FSaveToFile =true;
   FDi = 20;

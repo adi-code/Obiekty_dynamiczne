@@ -23,11 +23,11 @@ namespace wutNSGA2 {
   int maxfun = 10;
   int maxcons = 20;
   void initVariables() {
-    maxpop = CNSGA2Optimizer::gNSGA2Optimizer->getPopSize();
-    maxchrom = CNSGA2Optimizer::gNSGA2Optimizer->getBinarySize();
-    maxvar = CNSGA2Optimizer::gNSGA2Optimizer->getFloatSize() + CNSGA2Optimizer::gNSGA2Optimizer->getBinarySize();
-    maxfun = CNSGA2Optimizer::gNSGA2Optimizer->getObjectiveFncCnt();
-    maxcons = CNSGA2Optimizer::gNSGA2Optimizer->getConstraintFncCnt();
+    maxpop = gNSGA2Optimizer->getPopSize();
+    maxchrom = gNSGA2Optimizer->getBinarySize();
+	maxvar = gNSGA2Optimizer->getFloatSize() + gNSGA2Optimizer->getBinarySize();
+    maxfun = gNSGA2Optimizer->getObjectiveFncCnt();
+    maxcons = gNSGA2Optimizer->getConstraintFncCnt();
   }
 
   globpop::globpop() {
@@ -344,8 +344,8 @@ namespace wutNSGA2 {
       for (int j = nvar; j < nvar+nchrom; j++) {
         xf[j] = pop_ptr->ind_ptr->xbin[j-nvar];
       }
-      for (unsigned int j=0; j < CNSGA2Optimizer::gNSGA2Optimizer->getObjectiveFncCnt(); j++) {
-        f[j] = CNSGA2Optimizer::gNSGA2Optimizer->calculateObjectiveFnc(xf, nvar+nchrom, j);
+      for (unsigned int j=0; j < gNSGA2Optimizer->getObjectiveFncCnt(); j++) {
+        f[j] = gNSGA2Optimizer->calculateObjectiveFnc(xf, nvar+nchrom, j);
       }
       //  f[0] = (1-x[0])*(1-x[0]) + 100*(x[1]-x[0]*x[0])*(x[1]-x[0]*x[0]);
       // Second Fitness Function
@@ -357,8 +357,8 @@ namespace wutNSGA2 {
       /******************************************************************/
       // g(x) >= 0 type (normalize g(x) as in the cstr[1] below)
       /*===========Start Coding Here=============*/
-      for (unsigned int j=0; j < CNSGA2Optimizer::gNSGA2Optimizer->getConstraintFncCnt(); j++) {
-        cstr[j] = -CNSGA2Optimizer::gNSGA2Optimizer->calculateConstraintFnc(xf, nvar+nchrom, j);
+      for (unsigned int j=0; j < gNSGA2Optimizer->getConstraintFncCnt(); j++) {
+        cstr[j] = -gNSGA2Optimizer->calculateConstraintFnc(xf, nvar+nchrom, j);
       }
       //cstr[0] = 1;//x[0]*x[0]+x[1]*x[1]-1.0-0.1*cos(16.0*(x[0]/x[1]));
       // cstr[1] = 1;//(-square(x[0]-0.5) - square(x[1]-0.5) + 0.5)/0.5;
@@ -475,8 +475,8 @@ namespace wutNSGA2 {
 
     // printf("Give no. of real and binary-coded variables\n\n");
     // scanf("%d %d",&nvar,&nchrom);
-    nvar=CNSGA2Optimizer::gNSGA2Optimizer->getFloatSize();
-    nchrom=CNSGA2Optimizer::gNSGA2Optimizer->getBinarySize();
+    nvar=gNSGA2Optimizer->getFloatSize();
+    nchrom=gNSGA2Optimizer->getBinarySize();
     /*Checks if the number of variables are more than specified in the
   program if it fails here goto tunsga1.c file and increase the
   maxvar to the number equal to your requirement*/
@@ -491,7 +491,7 @@ namespace wutNSGA2 {
 
     // printf("Give no. of objective functions\n\n");
     //scanf("%d",&nfunc);
-    nfunc=CNSGA2Optimizer::gNSGA2Optimizer->getObjectiveFncCnt();
+    nfunc=gNSGA2Optimizer->getObjectiveFncCnt();
     /*Checks if the number of functions are more than specified in the
    program if it fails here goto tunsga1.c file and increase the
    maxfun to the number equal to your requirement*/
@@ -504,7 +504,7 @@ namespace wutNSGA2 {
 
     // printf("Give no. of constraints\n\n");
     // scanf("%d",&ncons);
-    ncons=CNSGA2Optimizer::gNSGA2Optimizer->getConstraintFncCnt();
+    ncons=gNSGA2Optimizer->getConstraintFncCnt();
     /*Checks if the number of constraints are more than specified in the
   program if it fails here goto tunsga1.c file and increase the
     maxcons to the number equal to your requirement*/
@@ -525,7 +525,7 @@ namespace wutNSGA2 {
 
     //printf("Give Population size (an even no.) \n");
     //scanf("%d",&popsize);
-    popsize=CNSGA2Optimizer::gNSGA2Optimizer->getPopSize();
+    popsize=gNSGA2Optimizer->getPopSize();
     /*Checks if the number of individuals in the population  are more
    than specified in the program if it fails here goto tunsga1.c file and
    increase the maxpop to the number equal to your requirement*/
@@ -544,7 +544,7 @@ namespace wutNSGA2 {
 
     // printf("Give the no.of generations \n");
     //scanf("%d",&gener);
-    gener=CNSGA2Optimizer::gNSGA2Optimizer->getGenerations();
+    gener=gNSGA2Optimizer->getGenerations();
     /*No. of generations for which the GA will let the population evolve
     Default value is 100
     Too large value will take very long time and very small value will
@@ -552,36 +552,36 @@ namespace wutNSGA2 {
 
     // printf("Give the cross-over probability (between 0.5 and 1)\n");
     //scanf("%f",&pcross);
-    pcross=CNSGA2Optimizer::gNSGA2Optimizer->getCross();
+    pcross=gNSGA2Optimizer->getCross();
     if (nvar > 0)
     {
       cc = 1.0/nvar;
       //printf("Give the mutation probability for real-coded vectors (between 0 and %f)\n",cc);
       //scanf("%f",&pmut_r);
-      pmut_r = CNSGA2Optimizer::gNSGA2Optimizer->getFloatPMut();
+      pmut_r = gNSGA2Optimizer->getFloatPMut();
       /*Asks for Distribution Index for Cross-over (Default = 20)*/
       /*For Mutation (Default = 10 to 500)*/
 
       // printf("Give Distribution Index for real-coded crossover between 0.5 to 100\n");
       // scanf("%f",&di);
-      di = CNSGA2Optimizer::gNSGA2Optimizer->getDi();
+      di = gNSGA2Optimizer->getDi();
       //printf("Give Distribution Index for real-coded mutation between 0.5 to 500\n");
       //scanf("%f",&dim);
-      dim = CNSGA2Optimizer::gNSGA2Optimizer->getDiM();
+      dim = gNSGA2Optimizer->getDiM();
       for(i = 0; i < nvar; i++)
       {
         /*Specify the limits of the variables*/
 
         //printf("Give Lower & Upper limits of the %dth real-coded variable\n",i+1);
         //scanf("%f %f",&lim_r[i][0],&lim_r[i][1]);
-        lim_r[i][0]=CNSGA2Optimizer::gNSGA2Optimizer->getFLLimit(i);
-        lim_r[i][1]=CNSGA2Optimizer::gNSGA2Optimizer->getFHLimit(i);
+        lim_r[i][0]=gNSGA2Optimizer->getFLLimit(i);
+        lim_r[i][1]=gNSGA2Optimizer->getFHLimit(i);
 
       }
 
       //printf("If limits on real-coded variable are rigid (1 if yes)\n");
       //scanf("%d",&ans);
-      ans=CNSGA2Optimizer::gNSGA2Optimizer->getRigidConstraints();
+      ans=gNSGA2Optimizer->getRigidConstraints();
     }
 
     chrom = 0;
@@ -607,8 +607,8 @@ namespace wutNSGA2 {
 
         //printf("Give lower & the upper limits of the %d variable\n",i+1);
         //scanf("%f %f",&lim_b[i][0],&lim_b[i][1]);
-        lim_b[i][0] = CNSGA2Optimizer::gNSGA2Optimizer->getBLLimit(i);
-        lim_b[i][1] = CNSGA2Optimizer::gNSGA2Optimizer->getBHLimit(i);
+        lim_b[i][0] = gNSGA2Optimizer->getBLLimit(i);
+        lim_b[i][1] = gNSGA2Optimizer->getBHLimit(i);
       }
       if(chrom > maxchrom)
       {
@@ -621,7 +621,7 @@ namespace wutNSGA2 {
 
       //  printf("Give the mutation probability for binary strings (between 0 and %f)\n",cc);
       //  scanf("%f",&pmut_b);
-      pmut_b = CNSGA2Optimizer::gNSGA2Optimizer->getBinaryPMut();
+      pmut_b = gNSGA2Optimizer->getBinaryPMut();
     }
 
     // printf("----------------------------------------------------------------\n");
@@ -636,7 +636,7 @@ namespace wutNSGA2 {
     /*Print the GA parameters and problem parameters
     in the file output.dat*/
 
-    if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+    if (gNSGA2Optimizer->saveToFile()) {
       fprintf(rep_ptr,"GA PARAMETERS\n");
       fprintf(rep_ptr,"-------------------------------------------------------\n");
 
@@ -882,7 +882,7 @@ namespace wutNSGA2 {
     float *ptr1,*ptr2;
     FILE *gr;
 
-    if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+    if (gNSGA2Optimizer->saveToFile()) {
       gr = fopen("g_rank_record.out","a");
       fprintf(gr,"Genration no. = %d\n",gen);
     }
@@ -953,7 +953,7 @@ namespace wutNSGA2 {
       global_pop_ptr->rankno[rnk-1] = q;
     }
     global_pop_ptr->maxrank = rnk;
-    if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+    if (gNSGA2Optimizer->saveToFile()) {
       fprintf(gr,"   RANK     No Of Individuals\n");
       for(i = 0;i < rnk;i++) {
         fprintf(gr,"\t%d\t%d\n",i+1,globalpop.rankno[i]);
@@ -971,7 +971,7 @@ namespace wutNSGA2 {
     float *ptr1,*ptr2;
     float *err_ptr1,*err_ptr2;
     FILE *gr;
-    if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+    if (gNSGA2Optimizer->saveToFile()) {
       gr = fopen("g_rank_record.out","a");
       fprintf(gr,"Genration no. = %d\n",gen);
     }
@@ -1076,7 +1076,7 @@ namespace wutNSGA2 {
       global_pop_ptr->rankno[rnk-1] = q;
     }
     global_pop_ptr->maxrank = rnk;
-    if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+    if (gNSGA2Optimizer->saveToFile()) {
       fprintf(gr,"   RANK     No Of Individuals\n");
       for(i = 0;i < rnk;i++)
       {
@@ -1411,7 +1411,7 @@ namespace wutNSGA2 {
     *lastit;
     /*File Pointers*/
 
-    if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+    if (gNSGA2Optimizer->saveToFile()) {
 	  rep_ptr = fopen("NSGA2_output.txt","w");
 	  gen_ptr =fopen("NSGA2_all_fitness.txt","w");
 	  rep2_ptr = fopen("NSGA2_ranks.txt","w");
@@ -1429,7 +1429,7 @@ namespace wutNSGA2 {
     /*Get the input from the file input.h*/
     input(rep_ptr);
 
-    if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+    if (gNSGA2Optimizer->saveToFile()) {
       fprintf(rep_ptr,"Results in a file\n");
       fprintf(end_ptr,"# Last generation population (Feasible and non-dominated)\n");
       fprintf(end_ptr,"# Fitness_vector (first %d)  Constraint_violation (next %d)  Overall_penalty\n",nfunc,ncons);
@@ -1466,7 +1466,7 @@ namespace wutNSGA2 {
 
     func(old_pop_ptr);
     /*Function Calculaiton*/
-    if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+    if (gNSGA2Optimizer->saveToFile()) {
       fprintf(rep_ptr,"----------------------------------------------------\n");
       fprintf(rep_ptr,"Statistics at Generation 0 ->\n");
       fprintf(rep_ptr,"--------------------------------------------------\n");
@@ -1478,12 +1478,12 @@ namespace wutNSGA2 {
 
     for (i = 0;i < gener;i++)
     {
-        CNSGA2Optimizer::gNSGA2Optimizer->fireOnGenerationDoneNotify(i);
-      if (CNSGA2Optimizer::gNSGA2Optimizer->isTerminated()) {break;}
+    	gNSGA2Optimizer->fireOnGenerationDoneNotify(i);
+      if (gNSGA2Optimizer->isTerminated()) {break;}
       //printf("Generation = %d\n",i+1);
       old_pop_ptr = &(oldpop);
       mate_pop_ptr = &(matepop);
-      if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+      if (gNSGA2Optimizer->saveToFile()) {
         fprintf(rep_ptr,"Population at generation no. -->%d\n",i+1);
         fprintf(gen_ptr,"#Generation No. -->%d\n",i+1);
         fprintf(gen_ptr,"#Variable_vector  Fitness_vector Constraint_violation Overall_penalty\n");
@@ -1551,7 +1551,7 @@ namespace wutNSGA2 {
 
       mate_pop_ptr = &(matepop);
       /*------------------REPORT PRINTING--------------------------------*/
-      if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+      if (gNSGA2Optimizer->saveToFile()) {
         report(i ,old_pop_ptr ,mate_pop_ptr ,rep_ptr ,gen_ptr, lastit );
       }
       /*==================================================================*/
@@ -1567,7 +1567,7 @@ namespace wutNSGA2 {
       else
         maxrank1 = new_pop_ptr->maxrank;
 
-      if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+      if (gNSGA2Optimizer->saveToFile()) {
         fprintf(rep2_ptr,"--------RANK AT GENERATION %d--------------\n",i+1);
         fprintf(rep2_ptr,"Rank old ranks   new ranks     rankratio\n");
 
@@ -1678,19 +1678,19 @@ namespace wutNSGA2 {
         sol->FObjFncVals.resize(nfunc);
         for(l = 0;l < nfunc;l++){
           sol->FObjFncVals[l] = old_pop_ptr->ind_ptr->fitness[l];
-          if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) fprintf(end_ptr,"%f\t",old_pop_ptr->ind_ptr->fitness[l]);
+          if (gNSGA2Optimizer->saveToFile()) fprintf(end_ptr,"%f\t",old_pop_ptr->ind_ptr->fitness[l]);
         }
         sol->FConstraintVals.resize(ncons);
         for(l = 0;l < ncons;l++)
         {
           sol->FConstraintVals[l] = old_pop_ptr->ind_ptr->constr[l];
-          if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) fprintf(end_ptr,"%f\t",old_pop_ptr->ind_ptr->constr[l]);
+          if (gNSGA2Optimizer->saveToFile()) fprintf(end_ptr,"%f\t",old_pop_ptr->ind_ptr->constr[l]);
         }
         if (ncons > 0) {
-          if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) fprintf(end_ptr,"%f\t",old_pop_ptr->ind_ptr->error);
+          if (gNSGA2Optimizer->saveToFile()) fprintf(end_ptr,"%f\t",old_pop_ptr->ind_ptr->error);
         }
 
-        if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) fprintf(end_ptr,"\n");
+        if (gNSGA2Optimizer->saveToFile()) fprintf(end_ptr,"\n");
 
 
         if (nvar > 0)
@@ -1698,9 +1698,9 @@ namespace wutNSGA2 {
           sol->FFloatVars.resize(nvar);
           for(l = 0;l < nvar ;l++) {
             sol->FFloatVars[l] = old_pop_ptr->ind_ptr->xreal[l];
-            if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) fprintf(g_var,"%f\t",old_pop_ptr->ind_ptr->xreal[l]);
+            if (gNSGA2Optimizer->saveToFile()) fprintf(g_var,"%f\t",old_pop_ptr->ind_ptr->xreal[l]);
           }
-          if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) fprintf(g_var,"  ");
+          if (gNSGA2Optimizer->saveToFile()) fprintf(g_var,"  ");
         }
 
         if(nchrom > 0)
@@ -1708,24 +1708,24 @@ namespace wutNSGA2 {
           sol->FBinaryVars.resize(nchrom);
           for(l = 0;l < nchrom;l++) {
             sol->FBinaryVars[l] = old_pop_ptr->ind_ptr->xbin[l];
-            if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) fprintf(g_var,"%f\t",old_pop_ptr->ind_ptr->xbin[l]);
+            if (gNSGA2Optimizer->saveToFile()) fprintf(g_var,"%f\t",old_pop_ptr->ind_ptr->xbin[l]);
           }
         }
-        if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) fprintf(g_var,"\n");
+        if (gNSGA2Optimizer->saveToFile()) fprintf(g_var,"\n");
         solset->solutions.push_back(sol);
       }  // feasibility check
 
     } // end of f (printing)
-    CNSGA2Optimizer::gNSGA2Optimizer->setSolution(solset);
+    gNSGA2Optimizer->setSolution(solset);
     if (solset->solutions.size()==0) {
-      CNSGA2Optimizer::gNSGA2Optimizer->fireOnAfterStopNotify(M_OPT_NO_FSOL);
+      gNSGA2Optimizer->fireOnAfterStopNotify(M_OPT_NO_FSOL);
     }
     // for the last generation
     /*                   Generation Loop Ends                                */
     /************************************************************************/
 
 
-    if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+    if (gNSGA2Optimizer->saveToFile()) {
       fprintf(rep_ptr,"NO. OF CROSSOVER = %d\n",ncross);
       fprintf(rep_ptr,"NO. OF MUTATION = %d\n",nmut);
       fprintf(rep_ptr,"------------------------------------------------------------\n");
@@ -1734,7 +1734,7 @@ namespace wutNSGA2 {
       //printf("NOW YOU CAN LOOK IN THE FILE OUTPUT2.DAT\n");
     }
     /*Closing the files*/
-    if (CNSGA2Optimizer::gNSGA2Optimizer->saveToFile()) {
+    if (gNSGA2Optimizer->saveToFile()) {
       fclose(rep_ptr);
       fclose(gen_ptr);
       fclose(rep2_ptr);

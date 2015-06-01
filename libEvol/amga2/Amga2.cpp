@@ -108,13 +108,17 @@ void Amga2::alocateMemory() {
   }
 
   //HARD CODED CONFIGURATION !!!
-  int _eliteSize = getPopSize(); // it does not has to be this way, but this is quite O.K.
+  int _eliteSize = getArchiveSize(); // it does not has to be this way, but this is quite O.K.
+  if (getArchiveSize()<getPopSize()) {
+      fireOnErrorNotify("Archive size was smaller than population size!\n Archieve size was set as population size\n This is not goog for this algorithm!");
+      setArchiveSize(getPopSize());
+  }
 
- // initialSize = _eliteSize; // !!! ???
+  initialSize = _eliteSize; // !!! ???
   populationSize = getPopSize();
   numEvaluations = getGenerations() * getPopSize();
- // archiveSize = _eliteSize;
- // eliteSize = _eliteSize;
+  archiveSize = getArchiveSize();
+  eliteSize = getArchiveSize();
   //advised values
 
   // don't work well...
@@ -457,49 +461,46 @@ void Amga2::evaluateIndividual(Individual * individual) {
   double * constr = individual->getConstr();
 
   for (register unsigned int i = 0; i < numVar; i++) {
-    var[i] = (maxVar[i] - minVar[i]) *  normalVar[i] + 2.0 * minVar[i] - maxVar[i];
-    if (var[i] < minVar[i]) {
-      var[i] = minVar[i];
-    }
-    if (var[i] > maxVar[i]) {
-      var[i] = maxVar[i];
-    }
+	var[i] = (maxVar[i] - minVar[i]) *  normalVar[i] + 2.0 * minVar[i] - maxVar[i];
+	if (var[i] < minVar[i]) {
+	  var[i] = minVar[i];
+	}
+	if (var[i] > maxVar[i]) {
+	  var[i] = maxVar[i];
+	}
   }
 
   for (register unsigned int i = 0; i < numIntVar; i++) {
-    if (intVar[i] < minIntVar[i]) {
-      intVar[i] = minIntVar[i];
-    }
-    if (intVar[i] > maxIntVar[i]) {
-      intVar[i] = maxIntVar[i];
-    }
+	if (intVar[i] < minIntVar[i]) {
+	  intVar[i] = minIntVar[i];
+	}
+	if (intVar[i] > maxIntVar[i]) {
+	  intVar[i] = maxIntVar[i];
+	}
   }
   //this line is crucial !!! -
   //evaluator.evaluate(var, obj, constr);
   double* fulVar = new double [numVar+numIntVar];
   for (int i = 0; i < numVar; i++) {
-      fulVar[i] = var[i];
+	  fulVar[i] = var[i];
   }
   for (int i = 0; i < numIntVar; i++) {
-      fulVar[i+numVar] = intVar[i];
+	  fulVar[i+numVar] = intVar[i];
   }
   for (int i = 0; i < numObj; i++) {
-    obj[i] = calculateObjectiveFnc(fulVar, numVar+numIntVar, i);
-//      obj[i] = 0.0;
+	obj[i] = calculateObjectiveFnc(fulVar, numVar+numIntVar, i);
   }
 
   for (int i = 0; i < numConstr; i++) {
-      // the minus is crucial - this algorithm interprets constraints in a opposite way, as
-      // g(x) > 0;
-      double constraint = -1*calculateConstraintFnc(fulVar, numVar+numIntVar, i);
-    if (constraint < 0) {
-        constr[i] = constraint;
-    } else {
-        constr[i] = 0;
-    }
+	  // the minus is crucial - this algorithm interprets constraints in a opposite way, as
+	  // g(x) > 0;
+	  double constraint = -1*calculateConstraintFnc(fulVar, numVar+numIntVar, i);
+	if (constraint < 0) {
+		constr[i] = constraint;
+	} else {
+		constr[i] = 0;
+	}
   }
-
-
   // error handling - not important
 //  for (register unsigned int i = 0; i < numObj; i++) {
 //	if (obj[i] != obj[i]) {
@@ -602,7 +603,7 @@ void Amga2::evolvePopulation() {
   updateObjectiveConstraintRange();
   normalizePopulation(archivePopulation, currentArchiveSize);
 
-  evaluationCounter = 0;
+//  evaluationCounter = 0;
   register unsigned int numGenerations = (numEvaluations - evaluationCounter) / (populationSize);
 //  cout << " \npopulationSize: " << populationSize;
 //  cout << " \nnumEvaluations: " << numEvaluations;
@@ -627,22 +628,21 @@ void Amga2::evolvePopulation() {
 
    // printPopulation();
    // finalizePopulation();
-    fireOnGenerationDoneNotify(i);
+	fireOnGenerationDoneNotify(i);
 
-    if (FTerminated) {
-        break;
-    }
+	if (FTerminated) {
+		break;
+	}
   }
 
   finalizePopulation();
   if (saveToFile()) {
-    writeParetoFile("AMGA2_result.txt");
-    writeParetoObjectives("AMGA2_objectives.txt");
+	writeParetoFile("AMGA2_result.txt");
+	writeParetoObjectives("AMGA2_objectives.txt");
   }
   fireOnAfterStopNotify("Amga2 finished!");
   return;
 }
-
 //  void Amga2::printPopulation() {
 ////    for (int k = 0 ; k < currentArchiveSize; k++) {
 ////      std::cout << "\nk:\t" << k << "\n"

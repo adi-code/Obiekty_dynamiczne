@@ -54,8 +54,8 @@ std::vector<AlgorithmSetting> Amga2AlgorithmSettings::getSettingsList() {
     if(settings.empty()) {
         settings.emplace_back(AlgorithmSetting("Prawdopodobieństwo krzyżowania", 0, 0.0, 1.0, 0.5));
         settings.emplace_back(AlgorithmSetting("Prawdopodobieństwo mutacji", 0, 0.0, 1.0, 0.1));
-        settings.emplace_back(AlgorithmSetting("Prawdopodobieństwo DI", 0, 0.0, 1.0, 0.5));
-        settings.emplace_back(AlgorithmSetting("Prawdopodobieństwo DIM", 0, 0.0, 1.0, 0.5));
+        settings.emplace_back(AlgorithmSetting("Indeks dystr. krzyżowania", 0, 0.0, 1000.0, 10.0));
+        settings.emplace_back(AlgorithmSetting("Indeks dystr. mutacji", 0, 0.0, 1000.0, 10.0));
         settings.emplace_back(AlgorithmSetting("Wielkość archiwum", 1, 10, 10000, 100));
     }
 

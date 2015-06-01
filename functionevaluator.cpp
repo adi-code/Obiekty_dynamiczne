@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iomanip>
 
-FunctionEvaluator::FunctionEvaluator()
+FunctionEvaluator::FunctionEvaluator() : m_cache_enabled(true)
 {
 
 }
@@ -16,15 +16,21 @@ FunctionEvaluator::~FunctionEvaluator()
 std::vector<double> FunctionEvaluator::evaluate(double *p_pf, unsigned int p_nf) {
     std::string hash = getHash(p_pf, p_nf);
 
-    if(isCached(hash)) {
+    if(m_cache_enabled && isCached(hash)) {
         return getFromCache(hash);
     }
 
     std::vector<double> result = evaluateImpl(p_pf, p_nf);
 
-    storeInCache(hash, result);
+    if(m_cache_enabled) {
+        storeInCache(hash, result);
+    }
 
     return result;
+}
+
+void FunctionEvaluator::setCacheEnabled(bool p_cache_enabled) {
+    m_cache_enabled = p_cache_enabled;
 }
 
 void FunctionEvaluator::clearCache() {

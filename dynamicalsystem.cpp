@@ -1,5 +1,7 @@
 #include "dynamicalsystem.h"
 
+#include "Eigen/Eigenvalues"
+
 using namespace boost::numeric::ublas;
 
 DynamicalSystem::DynamicalSystem(unsigned int p_system_dimension,
@@ -347,6 +349,58 @@ std::vector<double> DynamicalSystem::GetNumerator()
 std::vector<double> DynamicalSystem::GetDenominator()
 {
     return m_denominator_parameters;
+}
+
+std::pair<double, double> DynamicalSystem::GetTimeResponseParams() {
+    static const double TOL = 1e-9;
+    //CalculateMatrices();
+    Eigen::MatrixXd m(1,1);
+    unsigned int size1 = m_a_matrix.size1();
+    unsigned int size2 = m_a_matrix.size2();
+    m.resize(size1, size2);
+    for(unsigned int i=0;i<size1;++i) {
+        for(unsigned int j=0;j<size2;++j) {
+            m(i, j) = m_a_matrix(i, j);
+        }
+    }
+
+    Eigen::EigenSolver<Eigen::MatrixXd> es(m);
+    auto eigenvalues = es.eigenvalues();
+    unsigned int size = eigenvalues.rows();
+
+    std::complex<double> max_pole(0.0, 0.0);
+    double max_pole_abs = 0.0;
+    double min_real_pole = size > 0 ? std::abs(eigenvalues[0].real()) : 1e200;
+
+    for(unsigned int i=0;i<size;++i) {
+        std::complex<double> lambda = eigenvalues[i];
+        double lambda_real_abs = std::abs(lambda.real());
+
+        if(lambda_real_abs > TOL) {
+            double lambda_abs = std::abs(lambda);
+            if(lambda_abs > max_pole_abs) {
+                max_pole_abs = lambda_abs;
+                max_pole = lambda;
+            }
+
+            min_real_pole = std::min(min_real_pole, lambda_real_abs);
+        }
+    }
+
+    std::pair<double, double> res = std::make_pair(0.02, 20.0);
+
+    if(max_pole_abs > 0.0) {
+        res.first = 0.2 * 3.14159265359 / max_pole_abs;
+
+        double final = 5.0 / min_real_pole;
+
+        int coeff = std::pow(10, std::ceil(std::log10(final)) - 1);
+        final = static_cast<double>(coeff) * std::ceil(final / coeff);
+
+        res.second = final;
+    }
+
+    return res;
 }
 
 bool DynamicalSystem::IsSystemStable()

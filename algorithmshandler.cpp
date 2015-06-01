@@ -161,18 +161,12 @@ public:
 
     void beforeStart(const char* p_name) {
         if(NULL != m_alg_handler) {
-            //std::ostringstream ss;
-            //ss << p_name;
-            //m_alg_handler->Notify(ss.str().c_str());
             m_alg_handler->Notify(p_name);
         }
     }
 
     void afterStop(const char* p_name) {
         if(NULL != m_alg_handler) {
-            //std::ostringstream ss;
-            //ss << p_name;
-            //m_alg_handler->Notify(ss.str().c_str());
             m_alg_handler->Notify(p_name);
         }
     }
@@ -226,6 +220,29 @@ void AlgorithmsHandler::RunAlgorithm()
 //    delete m_controlled_process;
 //    emit EndOfAlgorithm();
 
+    // DEBUG
+    // the following code is used for
+    // testing purposes in order not to choose
+    // all parameters from GUI before running test
+    {
+        SetMaxResponseTime(40.0);
+//        SetControlledProcessDimension(2);
+//        std::vector<double> numerator = {10, 0, 0};
+//        std::vector<double> denominator = {1, 5, 20};
+        SetControlledProcessDimension(4);
+        std::vector<double> numerator = {5, -20, 0, 0, 0};
+        std::vector<double> denominator = {1, 10, 30, 100, 150};
+        SetNumeratorParameters(numerator);
+        SetDenominatorParameters(denominator);
+        std::vector<double> alg_params = {0.1, 0.05, 0.5, 10.0, 100.0};
+        SetAlgorithmParameters(alg_params);
+        SetPopulationSize(50);
+        SetIterations(30);
+        //SetMaxValues(250.0, 250.0, 100.0, 250.0);
+        SetMaxValues(25.0, 25.0, 25.0, 25.0);
+    }
+    // DEBUG
+
     m_evaluator.clearCache();
 
     AlgorithmRunner* runner = m_alg_selector.getAlgorithmRunner();
@@ -250,7 +267,6 @@ void AlgorithmsHandler::RunAlgorithm()
 
     settings->setParameters(m_algorithm_params);
 
-    unsigned int funcs = 3;
     settings->addObjectiveFunction(&m_control_time_function);
     settings->addObjectiveFunction(&m_overshoot_function);
     settings->addObjectiveFunction(&m_sqi_function);
@@ -271,19 +287,73 @@ void AlgorithmsHandler::RunAlgorithm()
 
     m_results = runner->getResults();
 
-    // saving results
+    SaveResults();
+//    // saving results
+//    std::ofstream out("results.txt");
+//    out << m_results.size() << ' ' << vars << ' ' << funcs << std::endl;
+//    for(unsigned int i=0;i<m_results.size();++i) {
+//        // saving step response
+//        double p_kr = m_results[i][0];
+//        double p_ti = m_results[i][1];
+//        double p_td = m_results[i][2];
+//        double p_kd = m_results[i][3];
+//        double params[] = {p_kr, p_ti, p_td, p_kd};
+//        std::ostringstream ss;
+//        ss << std::setprecision(3);
+//        ss << "step-responses/response-";
+//        ss << p_kr << "-" << p_ti << "-" << p_td << "-" << p_kd;
+//        ss << ".txt";
+//        m_evaluator.setCacheEnabled(false);
+//        m_evaluator.SetOutputFile(ss.str().c_str());
+//        m_evaluator.evaluate(params, 4);
+
+//        for(unsigned int j=0;j<m_results[i].size();++j) {
+//            out << m_results[i][j] << ' ';
+//        }
+//        out << std::endl;
+//    }
+//    out.close();
+//    // disable saving step response
+//    m_evaluator.SetOutputFile("");
+//    m_evaluator.setCacheEnabled(true);
+
+    moveToThread(m_parent_thread);
+    emit EndOfAlgorithm();
+}
+
+void AlgorithmsHandler::SaveResults() {
+    // save results
     std::ofstream out("results.txt");
+    unsigned int vars = 4;
+    unsigned int funcs = 3;
     out << m_results.size() << ' ' << vars << ' ' << funcs << std::endl;
     for(unsigned int i=0;i<m_results.size();++i) {
+        // save step response
+        double p_kr = m_results[i][0];
+        double p_ti = m_results[i][1];
+        double p_td = m_results[i][2];
+        double p_kd = m_results[i][3];
+        double params[] = {p_kr, p_ti, p_td, p_kd};
+        std::ostringstream ss;
+        ss << std::setprecision(3);
+        ss << "step-responses/response-";
+        ss << p_kr << "-" << p_ti << "-" << p_td << "-" << p_kd;
+        ss << ".txt";
+        m_evaluator.setCacheEnabled(false);
+        m_evaluator.SetOutputFile(ss.str().c_str());
+        m_evaluator.evaluate(params, 4);
+
+        // save decision variables' values
+        // and corresponding objective functions' values
         for(unsigned int j=0;j<m_results[i].size();++j) {
             out << m_results[i][j] << ' ';
         }
         out << std::endl;
     }
     out.close();
-
-    moveToThread(m_parent_thread);
-    emit EndOfAlgorithm();
+    // disable saving step response
+    m_evaluator.SetOutputFile("");
+    m_evaluator.setCacheEnabled(true);
 }
 
 void AlgorithmsHandler::SelectAlgorithm(unsigned int p_i) {

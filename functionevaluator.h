@@ -10,6 +10,7 @@ class FunctionEvaluator
 public:
     FunctionEvaluator();
     ~FunctionEvaluator();
+    void setCacheEnabled(bool p_cache_enabled);
 
     std::vector<double> evaluate(double* p_pf, unsigned int p_nf);
 
@@ -27,6 +28,7 @@ protected:
 
 protected:
     std::unordered_map<std::string, std::vector<double> > m_cache;
+    bool m_cache_enabled;
 };
 
 #endif // FUNCTIONEVALUATOR_H

@@ -715,9 +715,7 @@ int EFILE::selectClusteredSolution(int _whichcluster,int _whichsolution){
 }
 
 double EFILE::rnd(double _min,double _max){
-//  return((double)(_min + ((double)(_max-_min)*rand()/(double)(RAND_MAX+_min))));
-    return((double)(_min + ((double)(_max-_min)*rand()/(double)(RAND_MAX))));
-
+  return((double)(_min + ((double)(_max-_min)*rand()/(double)(RAND_MAX+_min))));
 }
 
 void EFILE::normalizeDistances(){

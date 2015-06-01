@@ -56,6 +56,7 @@ public:
     std::vector<std::vector<double> > GetResults();
     void Notify(const char* p_msg);
     void setParentThread(QThread *p_parent_thread);
+    void SaveResults();
 
 private:
     void Evaluate(double p_max_time,
